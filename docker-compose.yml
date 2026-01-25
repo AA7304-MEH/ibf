@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:6
+    container_name: ibf-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ibf-network
+
+  backend:
+    build: ./server
+    container_name: ibf-backend
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: ${MONGODB_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      CLIENT_URL: ${CLIENT_URL}
+    ports:
+      - "5000:5000"
+    networks:
+      - ibf-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./client
+    container_name: ibf-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+    ports:
+      - "3000:3000"
+    networks:
+      - ibf-network
+
+volumes:
+  mongodb_data:
+
+
+networks:
+  ibf-network:
+    driver: bridge
