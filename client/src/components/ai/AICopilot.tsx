@@ -1,30 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SparklesIcon, XMarkIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import { useLocation } from 'react-router-dom';
 
 const AICopilot: React.FC = () => {
+    const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
-        { role: 'ai', text: "Hello! I'm your Quantum Learning Companion. I noticed you're exploring the Digital Twin Workspace. Need a quick tour?" }
-    ]);
+    const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');
+
+    useEffect(() => {
+        const path = location.pathname;
+        let contextMsg = "Hello! I'm your Quantum Learning Companion. How can I assist your journey today?";
+
+        if (path.includes('/incubator')) {
+            contextMsg = "Greetings, Founder. CEO Mode active. Ready to optimize your startup trajectory?";
+        } else if (path.includes('/skillswap')) {
+            contextMsg = "Welcome back, Scholar. I'm ready to help you master new skills. What's our focus today?";
+        } else if (path.includes('/collab')) {
+            contextMsg = "Talent detected. Project War Room protocols online. Need help finding your next mission?";
+        }
+
+        setMessages([{ role: 'ai', text: contextMsg }]);
+    }, [location.pathname]);
 
     const toggle = () => setIsOpen(!isOpen);
 
     const sendMessage = () => {
         if (!input.trim()) return;
-        setMessages([...messages, { role: 'user', text: input }]);
+        const userMsg = { role: 'user', text: input };
+        setMessages(prev => [...prev, userMsg]);
         setInput('');
 
-        // Mock AI Response with Micro-Learning Injection
+        // Mock Contextual AI Response
         setTimeout(() => {
+            const path = location.pathname;
+            let aiText = "I'm analyzing your request... System suggests focusing on core fundamentals first.";
+            let microLesson = null;
+
+            if (path.includes('/incubator')) {
+                aiText = "Based on market trends, your current burn rate suggests a pivot or seed round in Q3.";
+                microLesson = "💡 CEO Tip: 'Burn Rate' is the rate at which a new company uses up its venture capital to finance overhead before generating positive cash flow.";
+            } else if (path.includes('/skillswap')) {
+                aiText = "I've reviewed your Learning Path. You're 15% closer to becoming a Full Stack dev!";
+                microLesson = "💡 Hint: Check the Web Foundations module to unlock the next milestone.";
+            }
+
             setMessages(prev => [...prev, {
                 role: 'ai',
-                text: "I'm analyzing your request... This simulation suggests focusing on the Design Dimensions first.",
-                hasMicroLearning: true,
-                microLesson: "💡 Micro-Lesson: 'Prototyping' is the process of creating a preliminary model of a product. Try using the 3D tool!"
+                text: aiText,
+                hasMicroLearning: !!microLesson,
+                microLesson
             }]);
-        }, 1000);
+        }, 1200);
     };
 
     return (
@@ -53,8 +81,8 @@ const AICopilot: React.FC = () => {
                             {messages.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${msg.role === 'user'
-                                            ? 'bg-blue-600 text-white rounded-br-none'
-                                            : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow-sm border border-gray-100 dark:border-gray-600 rounded-bl-none'
+                                        ? 'bg-blue-600 text-white rounded-br-none'
+                                        : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow-sm border border-gray-100 dark:border-gray-600 rounded-bl-none'
                                         }`}>
                                         {msg.text}
                                         {(msg as any).hasMicroLearning && (

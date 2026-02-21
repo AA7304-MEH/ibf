@@ -89,10 +89,13 @@ const SkillGalaxy: React.FC = () => {
                                 whileHover={{ scale: 1.2, boxShadow: `0 0 30px ${skill.color}` }}
                                 className="rounded-full shadow-lg border-2 border-white/10 backdrop-blur-md flex items-center justify-center relative z-20 transition-all duration-300"
                                 style={{
+                                    top: `${skill.y}%`, // Note: Original parent div uses skill.y directly, this uses %
+                                    left: `${skill.x}%`, // Note: Original parent div uses skill.x directly, this uses %
+                                    transform: `translateY(${Math.sin(index) * 10}px)`, // Using index for static offset to fix build
+                                    borderColor: skill.color,
                                     width: skill.size,
                                     height: skill.size,
                                     backgroundColor: `${skill.color}40`, // 40% opacity
-                                    borderColor: skill.color
                                 }}
                             >
                                 <span className="font-bold text-xs pointer-events-none">{skill.level}</span>
@@ -107,7 +110,7 @@ const SkillGalaxy: React.FC = () => {
 
                     {/* Hover Info Panel */}
                     <div className="absolute bottom-8 right-8 w-64 bg-gray-800/90 backdrop-blur border border-gray-700 p-4 rounded-xl shadow-2xl transform transition-all duration-500"
-                        style={{ opacity: hoveredSkill ? 1 : 0, translateY: hoveredSkill ? 0 : 20 }}
+                        style={{ opacity: hoveredSkill ? 1 : 0, transform: hoveredSkill ? 'translateY(0)' : 'translateY(20px)' }}
                     >
                         {hoveredSkill && (
                             <>

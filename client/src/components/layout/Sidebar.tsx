@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
     HomeIcon,
     BriefcaseIcon,
@@ -15,7 +15,9 @@ import {
     GlobeAltIcon,
     RocketLaunchIcon,
     FingerPrintIcon,
-    HeartIcon
+    HeartIcon,
+    CpuChipIcon,
+    ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -28,74 +30,130 @@ type NavSection = {
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
+    const location = useLocation();
+    const pathname = location.pathname;
+
+    // Detect active module
+    const currentModule = pathname.startsWith('/skillswap') ? 'skillswap'
+        : pathname.startsWith('/incubator') ? 'incubator'
+            : pathname.startsWith('/collab') ? 'collab'
+                : 'general'; // dashboard, profile, etc.
 
     const getSections = (): NavSection[] => {
-        // Common items for everyone
+        // Common items for everyone (Overview usually goes to dashboard)
+        // If inside a module, maybe show a "Back to Hub" or specific module dashboard?
+        // For now, keep Overview global but filter the rest.
+
         const common = [{ name: 'Overview', path: '/dashboard', icon: HomeIcon }];
 
-        if (userRole === 'founder') {
-            return [
-                {
-                    title: 'General',
-                    items: common
-                },
-                {
-                    title: 'Incubator Ultimate',
+        let sections: NavSection[] = [];
+
+        // 1. INCUBATOR MODULE
+        if (userRole === 'founder' || userRole === 'admin') {
+            if (currentModule === 'incubator' || currentModule === 'general') {
+                sections.push({
+                    title: 'Incubator',
                     items: [
+                        { name: 'Dashboard', path: '/incubator', icon: HomeIcon }, // Module Dashboard
                         { name: 'Multiverse HQ', path: '/incubator/multiverse', icon: RocketLaunchIcon },
                         { name: 'Startup Genome', path: '/incubator/genome', icon: ChartBarIcon },
                         { name: 'Founder Copilot', path: '/incubator/founder-copilot', icon: BoltIcon },
                         { name: 'Pitch Simulation', path: '/incubator/pitch-room', icon: UserGroupIcon },
-                        { name: 'Applications', path: '/dashboard/applications', icon: UserGroupIcon },
                     ]
-                }
-            ];
+                });
+            }
         }
 
-        if (userRole === 'talent' || userRole === 'student') {
-            return [
-                {
-                    title: 'General',
-                    items: common
-                },
-                {
-                    title: 'Collab Advanced',
+        // 2. COLLAB MODULE
+        if (['founder', 'talent', 'student', 'admin'].includes(userRole)) {
+            if (currentModule === 'collab' || currentModule === 'general') {
+                sections.push({
+                    title: 'Collab Hub',
                     items: [
+                        { name: 'Dashboard', path: '/collab', icon: HomeIcon },
                         { name: 'Neural Match', path: '/collab/neural-match', icon: UserGroupIcon },
                         { name: 'War Room', path: '/collab/war-room', icon: UserGroupIcon },
                         { name: 'Work DNA', path: '/collab/assessment', icon: FingerPrintIcon },
                         { name: 'Skill Evolution', path: '/collab/skill-evolution', icon: ChartBarIcon },
                         { name: 'Marketplace', path: '/marketplace', icon: BriefcaseIcon },
                     ]
-                },
-                {
-                    title: 'SkillSwap Ecosystem',
-                    items: [
-                        { name: 'Ecosystem Brain', path: '/ecosystem/brain', icon: GlobeAltIcon },
-                        { name: 'Symbiosis Engine', path: '/ecosystem/symbiosis', icon: HeartIcon },
-                        { name: 'Metaverse HQ', path: '/metaverse/workspace', icon: CubeTransparentIcon },
-                        { name: 'Skill Wallet', path: '/web3/wallet', icon: CreditCardIcon },
-                        { name: 'Global Impact', path: '/impact/global', icon: GlobeAltIcon },
-                        { name: 'Neuro Settings', path: '/settings/neuro', icon: BoltIcon },
-                    ]
-                },
-                {
-                    title: 'Career & Social',
-                    items: [
-                        { name: 'Portfolio', path: '/career/portfolio', icon: UserGroupIcon },
-                        { name: 'Waitlist / Beta', path: '/social/showcase', icon: UserGroupIcon },
-                    ]
-                }
-            ];
+                });
+            }
         }
 
-        // Admin / Fallback
-        return [
-            {
-                title: 'Menu',
-                items: common
+        // 3. SKILLSWAP MODULE - (Now includes Parent & Company Portals as sub-features)
+        if (['student', 'parent', 'company', 'admin'].includes(userRole)) {
+            if (currentModule === 'skillswap' || currentModule === 'general') {
+                const skillSwapItems = [
+                    { name: 'My Learning', path: '/skillswap', icon: AcademicCapIcon },
+                    { name: 'Ecosystem Brain', path: '/skillswap/ecosystem/brain', icon: CpuChipIcon },
+                    { name: 'Symbiosis Engine', path: '/skillswap/ecosystem/symbiosis', icon: HeartIcon },
+                    { name: 'Metaverse HQ', path: '/skillswap/metaverse', icon: CubeTransparentIcon },
+                    { name: 'Skill Wallet', path: '/skillswap/skill-wallet', icon: CreditCardIcon },
+                    { name: 'Global Impact', path: '/skillswap/global-impact', icon: GlobeAltIcon },
+                    { name: 'Neuro Settings', path: '/skillswap/settings', icon: BoltIcon },
+                    { name: 'Live Chat', path: '/skillswap/chat', icon: ChatBubbleLeftRightIcon },
+                ];
+
+                sections.push({
+                    title: 'SkillSwap Hub',
+                    items: skillSwapItems
+                });
+
+                // Conditional Parent Integration
+                if (['parent', 'admin'].includes(userRole)) {
+                    sections.push({
+                        title: 'Parent Ecosystem',
+                        items: [
+                            { name: 'Guardian Dashboard', path: '/parent/dashboard', icon: ShieldCheckIcon },
+                            { name: 'Child Insights', path: '/parent/insight', icon: ChartBarIcon },
+                        ]
+                    });
+                }
+
+                // Conditional Company Integration
+                if (['company', 'admin'].includes(userRole)) {
+                    sections.push({
+                        title: 'Company Portal',
+                        items: [
+                            { name: 'Post Internship', path: '/internships/post', icon: BriefcaseIcon },
+                            { name: 'Manage Applicants', path: '/internships/manage', icon: UserGroupIcon },
+                        ]
+                    });
+                }
+
+                sections.push({
+                    title: 'Career & Social',
+                    items: [
+                        { name: 'Portfolio Builder', path: '/career/portfolio', icon: BriefcaseIcon },
+                        { name: 'Micro-Internships', path: '/internships', icon: RocketLaunchIcon },
+                        { name: 'Waitlist / Beta', path: '/social/showcase', icon: UserGroupIcon },
+                    ]
+                });
+
+                sections.push({
+                    title: 'Gamification',
+                    items: [
+                        { name: 'Leaderboard', path: '/skillswap/leaderboard', icon: ChartBarIcon },
+                    ]
+                });
             }
-        ];
+        }
+
+
+
+        // General / Hub View
+        if (currentModule === 'general') {
+            // Add a "Modules" header if we are in general view to separate them
+            // Actually, the above logic adds them as blocks. 
+            // Maybe add "General" block at the top
+            sections.unshift({
+                title: 'General',
+                items: common
+            });
+        }
+
+        return sections;
     };
 
     return (

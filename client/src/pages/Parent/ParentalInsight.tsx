@@ -1,17 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react'; // Removed unused hooks
 import { motion } from 'framer-motion';
-import api from '../../services/api';
+// import api from '../../services/api';
 import { ChartBarIcon, HeartIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const ParentalInsight: React.FC = () => {
     // Mock Data for Demo (In real app, fetch connected child's data)
-    const [childStats, setChildStats] = useState({
+    // const [childStats, setChildStats] = useState({ // Unused
+    //     name: "Ashwin",
+    //     weeklyScreenTime: 1420, // minutes
+    //     weeklyFocusTime: 450,
+    //     moodTrend: "Happy",
+    //     topInterests: ["React", "AI/ML"]
+    // });
+    const childStats = {
         name: "Ashwin",
         weeklyScreenTime: 1420, // minutes
         weeklyFocusTime: 450,
         moodTrend: "Happy",
         topInterests: ["React", "AI/ML"]
-    });
+    };
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-8">

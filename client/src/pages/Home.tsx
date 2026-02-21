@@ -104,8 +104,7 @@ const Home: React.FC = () => {
                         </h3>
 
                         <p className="text-gray-600 mb-6 leading-relaxed">
-                            Post projects, find developers, designers, and marketers.
-                            Build your MVP with vetted talent. Pay only for results.
+                            Build your MVP with vetted talent. Focus on results, not hiring.
                         </p>
 
                         <div className="space-y-4">
@@ -121,7 +120,7 @@ const Home: React.FC = () => {
 
                             <div className="flex items-center text-gray-700">
                                 <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
-                                <span>Escrow payment protection</span>
+                                <span>Seamless project management</span>
                             </div>
                         </div>
 
@@ -197,8 +196,8 @@ const Home: React.FC = () => {
                         </div>
 
                         <div>
-                            <div className="text-4xl font-bold mb-2">$2.5M+</div>
-                            <div className="text-gray-400">In Grants Distributed</div>
+                            <div className="text-4xl font-bold mb-2">100%</div>
+                            <div className="text-gray-400">Free Platform</div>
                         </div>
                     </div>
                 </div>

@@ -7,6 +7,7 @@ export interface IWellbeingMetrics extends mongoose.Document {
     focusSessionsCount: number;
     moodScore?: number; // 1-5
     lastHeartbeat: Date;
+    breaksTaken: number;
 }
 
 const WellbeingMetricsSchema = new mongoose.Schema<IWellbeingMetrics>({
@@ -15,7 +16,8 @@ const WellbeingMetricsSchema = new mongoose.Schema<IWellbeingMetrics>({
     screenTimeMinutes: { type: Number, default: 0 },
     focusSessionsCount: { type: Number, default: 0 },
     moodScore: { type: Number, min: 1, max: 5 },
-    lastHeartbeat: { type: Date, default: Date.now }
+    lastHeartbeat: { type: Date, default: Date.now },
+    breaksTaken: { type: Number, default: 0 }
 });
 
 // Compound index to ensure one record per user per day

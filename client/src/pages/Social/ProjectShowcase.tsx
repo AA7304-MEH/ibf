@@ -3,40 +3,44 @@ import { motion } from 'framer-motion';
 import { HeartIcon, ChatBubbleLeftIcon, ShareIcon } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
 
+import api from '../../services/api';
+
 const ProjectShowcase: React.FC = () => {
-    // Mock Showcase Data
-    const projects = [
-        {
-            id: 1,
-            title: "EcoTrack: Carbon Footprint Monitor",
-            student: "Maya Singh",
-            level: "Innovator",
-            image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-            likes: 124,
-            comments: 18,
-            tags: ["React", "Node.js", "Sustainability"]
-        },
-        {
-            id: 2,
-            title: "MindfulVR: Meditation App",
-            student: "Liam K.",
-            level: "Creator",
-            image: "https://images.unsplash.com/photo-1622979135225-d2ba269fb1bd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-            likes: 89,
-            comments: 12,
-            tags: ["Unity", "C#", "Wellness"]
-        },
-        {
-            id: 3,
-            title: "LocalEats: Food Rescue Platform",
-            student: "Sarah J.",
-            level: "Builder",
-            image: "https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-            likes: 210,
-            comments: 45,
-            tags: ["Mobile", "Flutter", "Social Impact"]
-        }
-    ];
+    const [projects, setProjects] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                // Fetch recent projects
+                const res = await api.get('/projects');
+                // Transform to match UI if needed, or use directly if schema matches
+                // For this showcase, we might mock the 'image' if not in DB, or use a placeholder
+                const mapped = res.data.map((p: any) => ({
+                    id: p._id,
+                    title: p.title,
+                    student: "IBF Innovator", // Placeholder or fetch user name populate
+                    level: p.projectType === 'innovator' ? 'Innovator' : 'Builder',
+                    image: `https://source.unsplash.com/random/800x600?${p.tags[0] || 'technology'}`, // Dynamic image based on tag
+                    likes: Math.floor(Math.random() * 200), // Simulating engagement for now
+                    comments: Math.floor(Math.random() * 50),
+                    tags: p.skillsRequired || []
+                }));
+                setProjects(mapped);
+            } catch (err) {
+                console.error("Failed to fetch showcase projects", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProjects();
+    }, []);
+
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+        e.currentTarget.src = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'; // Reliable fallback
+    };
+
+    if (loading) return <div className="p-12 text-center">Loading Innovation Showcase...</div>;
 
     return (
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -62,6 +66,7 @@ const ProjectShowcase: React.FC = () => {
                             <img
                                 src={project.image}
                                 alt={project.title}
+                                onError={handleImageError}
                                 className="w-full h-full object-cover"
                             />
                             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-800 flex items-center shadow-sm">
@@ -75,7 +80,7 @@ const ProjectShowcase: React.FC = () => {
                             <p className="text-sm text-gray-500 mb-4">by {project.student}</p>
 
                             <div className="flex flex-wrap gap-2 mb-6">
-                                {project.tags.map(tag => (
+                                {project.tags.map((tag: string) => (
                                     <span key={tag} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
                                         {tag}
                                     </span>

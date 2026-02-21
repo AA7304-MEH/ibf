@@ -34,7 +34,7 @@ const UserSchema = new mongoose.Schema({
     },
     verificationType: {
         type: String,
-        enum: ['none', 'email', 'student', 'startup', 'payment'],
+        enum: ['none', 'email', 'student', 'startup'],
         default: 'none'
     },
     rating: {

@@ -25,7 +25,7 @@ router.post('/', protect, authorize('founder'), async (req: any, res) => {
     try {
         const startup = await Startup.create({
             ...req.body,
-            founder: req.user._id
+            founder: req.user.id,
         });
         res.status(201).json(startup);
     } catch (error) {

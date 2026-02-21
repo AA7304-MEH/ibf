@@ -1,98 +1,130 @@
 import { Request, Response } from 'express';
-// Mock Data Store
-let startups: any[] = [];
-let applications: any[] = [];
-let cohorts: any[] = [];
-let users: any[] = []; // minimal mock users if needed
+import Startup from '../models/Startup';
+import User from '../models/User';
+import { incubatorService } from '../services/incubator.service';
+import { GamificationEngine } from '../services/GamificationEngine';
 
-// Helper to generate ID
+// Helper to generate ID (still useful for some internal logic if needed, but Mongoose does it automatically)
 const genId = () => Math.random().toString(36).substr(2, 9);
 
 export const getStartups = async (req: Request, res: Response) => {
     try {
-        let results = [...startups];
+        let query: any = {};
 
         // Filtering
-        if (req.query.stage) results = results.filter(s => s.stage === req.query.stage);
-        if (req.query.industry) results = results.filter(s => s.industry === req.query.industry);
+        if (req.query.stage) query.stage = req.query.stage;
+        if (req.query.industry) query.industry = req.query.industry;
         if (req.query.search) {
             const search = (req.query.search as string).toLowerCase();
-            results = results.filter(s =>
-                s.name.toLowerCase().includes(search) ||
-                s.description.toLowerCase().includes(search)
-            );
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
         }
 
+        const results = await Startup.find(query).populate('founderId', 'firstName lastName email');
         res.json(results);
     } catch (error) {
+        console.error('Error fetching startups:', error);
         res.status(500).json({ message: 'Server Error' });
     }
 };
 
 export const getStartupById = async (req: Request, res: Response) => {
-    const startup = startups.find(s => s._id === req.params.id);
-    if (!startup) return res.status(404).json({ message: 'Startup not found' });
-    res.json(startup);
+    try {
+        const startup = await Startup.findById(req.params.id).populate('founderId', 'firstName lastName email');
+        if (!startup) return res.status(404).json({ message: 'Startup not found' });
+        res.json(startup);
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
 };
 
 export const createStartup = async (req: Request, res: Response) => {
-    const newStartup = {
-        _id: genId(),
-        ...req.body,
-        founder: (req as any).user ? (req as any).user.id : 'mock_founder_id',
-        incubatorStatus: 'applied',
-        createdAt: new Date()
-    };
-    startups.push(newStartup);
-    res.status(201).json(newStartup);
+    try {
+        const userId = (req as any).user ? (req as any).user.id : null;
+
+        const newStartup = await Startup.create({
+            ...req.body,
+            founderId: userId,
+            incubatorStatus: 'applied'
+        });
+
+        // Award XP for starting a startup journey
+        if (userId) {
+            await GamificationEngine.awardXP(userId, 'INTERNSHIP_MILESTONE');
+        }
+
+        res.status(201).json(newStartup);
+    } catch (error) {
+        console.error('Error creating startup:', error);
+        res.status(500).json({ message: 'Failed to create startup' });
+    }
 };
 
 export const seedIncubator = async (req: Request, res: Response) => {
-    console.log('Seeding Mock Data...');
+    try {
+        const count = await Startup.countDocuments();
+        if (count > 0) return res.json({ message: 'Already seeded' });
 
-    if (startups.length > 0) return res.json({ message: 'Already seeded' });
+        let founder = await User.findOne({ email: 'founder@ibf.com' });
+        if (!founder) {
+            founder = await User.create({
+                email: 'founder@ibf.com',
+                password: 'password123',
+                role: 'founder',
+                isVerified: true,
+                moduleAccess: ['incubator']
+            });
+        }
 
-    // Seed Cohort
-    const cohort = {
-        _id: genId(),
-        name: 'Winter 2026',
-        startDate: new Date('2026-01-10'),
-        endDate: new Date('2026-04-10'),
-        status: 'active'
-    };
-    cohorts.push(cohort);
+        const startups = [
+            {
+                name: 'TechFlow',
+                logo: 'https://placehold.co/150x150/2563eb/white?text=TF',
+                tagline: 'AI for Supply Chain',
+                description: 'Optimizing logistics with machine learning.',
+                industry: 'Logistics',
+                founderId: founder._id,
+                stage: 'mvp',
+                incubatorStatus: 'accepted',
+                cohort: 'Winter 2026',
+                metrics: { users: 150, revenue: 5000, growthRate: 20 },
+                teamSize: 3,
+                foundedDate: new Date('2025-01-01')
+            },
+            {
+                name: 'MediConnect',
+                logo: 'https://placehold.co/150x150/10b981/white?text=MC',
+                tagline: 'Telehealth for Rural Areas',
+                description: 'Connecting rural patients with top doctors.',
+                industry: 'HealthTech',
+                founderId: founder._id,
+                stage: 'prototype',
+                incubatorStatus: 'applied',
+                metrics: { users: 50, revenue: 0, growthRate: 10 },
+                teamSize: 2
+            }
+        ];
 
-    // Seed Startups
-    const s1 = {
-        _id: genId(),
-        name: 'TechFlow',
-        logo: 'https://placehold.co/150x150/2563eb/white?text=TF',
-        tagline: 'AI for Supply Chain',
-        description: 'Optimizing logistics with machine learning.',
-        stage: 'mvp',
-        industry: 'Logistics',
-        founder: { _id: 'f1', name: 'Alice Founder', email: 'alice@tech.com' },
-        incubatorStatus: 'accepted',
-        cohort: cohort.name,
-        funding: { amount: 50000, equity: 7, valuation: 714000 },
-        metrics: { users: 150, revenue: 5000, growthRate: 20 },
-        team: [{ name: 'Alice Founder', role: 'CEO' }]
-    };
+        await Startup.insertMany(startups);
+        res.json({ message: 'Seeding successful', startups });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Seeding failed' });
+    }
+};
+export const getFounderCopilotAdvice = async (req: Request, res: Response) => {
+    try {
+        const { startupId, prompt } = req.body;
+        if (!startupId || !prompt) {
+            return res.status(400).json({ message: 'Startup ID and prompt are required' });
+        }
 
-    const s2 = {
-        _id: genId(),
-        name: 'MediConnect',
-        logo: 'https://placehold.co/150x150/10b981/white?text=MC',
-        tagline: 'Telehealth for Rural Areas',
-        description: 'Connecting rural patients with top doctors.',
-        stage: 'prototype',
-        industry: 'HealthTech',
-        founder: { _id: 'f2', name: 'Bob Founder', email: 'bob@health.com' },
-        incubatorStatus: 'applied',
-        metrics: { users: 50, revenue: 0, growthRate: 10 }
-    };
-
-    startups.push(s1, s2);
-
-    res.json({ message: 'Seeding successful', startups });
+        const advice = await incubatorService.getFounderAdvice(startupId, prompt);
+        res.json({ advice });
+    } catch (error) {
+        console.error('Founder Copilot Controller Error:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
 };

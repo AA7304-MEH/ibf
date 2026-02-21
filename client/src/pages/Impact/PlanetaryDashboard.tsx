@@ -1,105 +1,77 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { GlobeAmericasIcon, CloudIcon, BoltIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { GlobeAmericasIcon, SparklesIcon, FireIcon, UserGroupIcon } from '@heroicons/react/24/solid';
 
 const PlanetaryDashboard: React.FC = () => {
+    // Mock Aggregated Data
+    const stats = [
+        { label: 'Learning Hours', value: '12,450', icon: ClockIcon, color: 'text-blue-500' },
+        { label: 'Micro-Internships', value: '842', icon: FireIcon, color: 'text-orange-500' },
+        { label: 'Startups Supported', value: '156', icon: SparklesIcon, color: 'text-purple-500' },
+        { label: 'Global Students', value: '3,200', icon: UserGroupIcon, color: 'text-green-500' },
+    ];
+
     return (
-        <div className="min-h-screen bg-black text-white p-8">
-            <header className="mb-12 border-b border-gray-800 pb-8">
-                <div className="flex justify-between items-end">
-                    <div>
-                        <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
-                            Planetary Impact Network
-                        </h1>
-                        <p className="text-gray-400 mt-2">Real-time telemetry of student contributions to UN Sustainable Development Goals.</p>
-                    </div>
-                    <div className="flex items-center space-x-2 text-green-400 animate-pulse">
-                        <span className="w-2 h-2 bg-green-400 rounded-full" />
-                        <span className="text-xs font-mono">LIVE FEED ACTIVE</span>
-                    </div>
-                </div>
-            </header>
+        <div className="min-h-screen bg-black text-white py-12 px-4 overflow-hidden relative">
+            {/* Background Effects */}
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://cdn.pixabay.com/photo/2016/10/20/18/35/earth-1756274_1280.jpg')] bg-cover bg-center opacity-20 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none" />
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* 3D Globe Placeholder */}
-                <div className="lg:col-span-3 bg-gray-900 rounded-3xl border border-gray-800 min-h-[500px] flex items-center justify-center relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/World_map_blank_without_borders.svg/2000px-World_map_blank_without_borders.svg.png')] bg-cover opacity-10 grayscale"></div>
-
-                    {/* Pulsing Hotspots */}
+            <div className="max-w-6xl mx-auto relative z-10">
+                <div className="text-center mb-16">
                     <motion.div
-                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute top-1/4 left-1/4 w-4 h-4 bg-green-500 rounded-full"
-                    />
-                    <motion.div
-                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                        className="absolute top-1/2 left-1/2 w-6 h-6 bg-blue-500 rounded-full"
-                    />
-                    <motion.div
-                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                        className="absolute bottom-1/3 right-1/4 w-3 h-3 bg-red-500 rounded-full"
-                    />
-
-                    <div className="relative z-10 text-center">
-                        <GlobeAmericasIcon className="w-32 h-32 mx-auto text-gray-700 mb-4" />
-                        <h3 className="text-2xl font-bold text-gray-500">Global Project Map</h3>
-                        <p className="text-gray-600">Visualizing 12,450 active student projects</p>
-                    </div>
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 1 }}
+                        className="inline-block p-4 rounded-full bg-blue-900/30 mb-6 backdrop-blur-md"
+                    >
+                        <GlobeAmericasIcon className="w-16 h-16 text-blue-400 animate-pulse" />
+                    </motion.div>
+                    <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-green-400 to-emerald-400 mb-6">
+                        Planetary Impact
+                    </h1>
+                    <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                        Tracking the collective intelligence and contribution of the SkillSwap Generation.
+                    </p>
                 </div>
 
-                {/* SDG Metrics */}
-                <div className="space-y-6">
-                    <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                        <div className="flex items-center mb-4">
-                            <CloudIcon className="w-6 h-6 text-blue-400 mr-3" />
-                            <h3 className="font-bold text-lg">Goal 13: Climate</h3>
-                        </div>
-                        <div className="text-3xl font-bold mb-1">8,921</div>
-                        <p className="text-sm text-gray-500">kg CO2 Offset by Algo-Efficiency</p>
-                        <div className="w-full bg-gray-800 h-1.5 rounded-full mt-4">
-                            <div className="h-full bg-blue-500 w-[70%]" />
-                        </div>
-                    </div>
-
-                    <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                        <div className="flex items-center mb-4">
-                            <BoltIcon className="w-6 h-6 text-yellow-400 mr-3" />
-                            <h3 className="font-bold text-lg">Goal 7: Energy</h3>
-                        </div>
-                        <div className="text-3xl font-bold mb-1">142</div>
-                        <p className="text-sm text-gray-500">Smart Grid Prototypes Deployed</p>
-                        <div className="w-full bg-gray-800 h-1.5 rounded-full mt-4">
-                            <div className="h-full bg-yellow-400 w-[45%]" />
-                        </div>
-                    </div>
-
-                    <div className="bg-gray-900 p-6 rounded-2xl border border-gray-800">
-                        <div className="flex items-center mb-4">
-                            <HeartIcon className="w-6 h-6 text-red-400 mr-3" />
-                            <h3 className="font-bold text-lg">Goal 3: Health</h3>
-                        </div>
-                        <div className="text-3xl font-bold mb-1">54</div>
-                        <p className="text-sm text-gray-500">Mental Health Apps Launched</p>
-                        <div className="w-full bg-gray-800 h-1.5 rounded-full mt-4">
-                            <div className="h-full bg-red-400 w-[60%]" />
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {stats.map((stat, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ y: 50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: idx * 0.2 }}
+                            className="bg-gray-900/50 backdrop-blur-xl border border-white/10 p-8 rounded-2xl text-center hover:bg-gray-800/50 transition-colors"
+                        >
+                            <stat.icon className={`w-12 h-12 mx-auto mb-4 ${stat.color}`} />
+                            <h3 className="text-4xl font-bold font-mono mb-2">{stat.value}</h3>
+                            <p className="text-gray-400 uppercase tracking-widest text-xs">{stat.label}</p>
+                        </motion.div>
+                    ))}
                 </div>
-            </div>
 
-            {/* Live Feed Ticker */}
-            <div className="mt-8 bg-gray-900 border border-gray-800 py-3 px-6 rounded-full flex items-center overflow-hidden">
-                <span className="text-xs font-bold text-green-500 mr-4 whitespace-nowrap">LATEST IMPACT</span>
-                <div className="flex space-x-12 animate-marquee whitespace-nowrap text-sm text-gray-400">
-                    <span>🌱 Class 10B deployed Soil Sensor Array in Mumbai</span>
-                    <span>⚡ Team Volt optimized solar algorithms (Efficiency +4%)</span>
-                    <span>💧 WaterViz dashboard adopted by Local NGO</span>
+                <div className="mt-20 p-8 bg-gradient-to-r from-blue-900/40 to-purple-900/40 rounded-3xl border border-white/10 backdrop-blur-lg">
+                    <h2 className="text-2xl font-bold mb-4">Latest Global Actions</h2>
+                    <div className="space-y-4">
+                        {[
+                            "Sarah (US) completed 'Sustainable Energy Research' for GreenTech Inc.",
+                            "Raj (India) earned the 'Python Master' Badge.",
+                            "Team Alpha (UK) deployed a new 'Food Rescue App' prototype.",
+                        ].map((action, i) => (
+                            <div key={i} className="flex items-center gap-4 text-gray-300">
+                                <span className="w-2 h-2 bg-green-400 rounded-full animate-ping" />
+                                <p>{action}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
     );
 };
+
+// Helper for Icon (since I can't import ClockIcon from outline in the solid import line easily without aliasing)
+import { ClockIcon } from '@heroicons/react/24/outline';
 
 export default PlanetaryDashboard;

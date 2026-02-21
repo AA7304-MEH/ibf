@@ -1,44 +1,44 @@
 import mongoose from 'mongoose';
 
 export interface IStartup extends mongoose.Document {
+    founderId: mongoose.Types.ObjectId;
     name: string;
     logo?: string;
     tagline: string;
     description: string;
-    problem: string;
-    solution: string;
-    marketSize?: number;
-    businessModel?: string;
-    stage: 'idea' | 'prototype' | 'mvp' | 'launched' | 'scaling';
-    team: {
-        name: string;
-        role: string;
-        linkedin?: string;
-        bio?: string;
+    industry: string;
+    stage: 'idea' | 'prototype' | 'mvp' | 'launched' | 'revenue' | 'seriesA';
+    teamSize: number;
+    foundedDate: Date;
+    metrics: {
+        users: number;
+        revenue: number;
+        growthRate: number;
+    };
+    mentors: {
+        mentorId: mongoose.Types.ObjectId;
+        assignedAt: Date;
     }[];
-    metrics?: {
-        users?: number;
-        revenue?: number;
-        growthRate?: number;
+    genomeAnalysis?: {
+        marketFitScore: number;
+        teamStrengthScore: number;
+        tractionScore: number;
+        competitorMap?: any;
+        growthPredictor?: any;
+        lastUpdated: Date;
     };
     incubatorStatus: 'applied' | 'review' | 'interview' | 'accepted' | 'rejected';
-    cohort?: string; // e.g. "Winter 2024" or ObjectId ref
-    founder: mongoose.Types.ObjectId;
-    funding?: {
-        amount?: number;
-        equity?: number;
-        valuation?: number;
-        date?: Date;
-    };
-    mentors: mongoose.Types.ObjectId[];
-    // Additional fields from original schema to keep backward compatibility or enhance
-    pitch?: string;
+    cohort?: string;
     website?: string;
-    industry?: string;
     createdAt: Date;
 }
 
 const StartupSchema = new mongoose.Schema<IStartup>({
+    founderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     name: {
         type: String,
         required: [true, 'Startup name is required'],
@@ -54,25 +54,39 @@ const StartupSchema = new mongoose.Schema<IStartup>({
         type: String,
         required: [true, 'Description is required']
     },
-    problem: String,
-    solution: String,
-    marketSize: Number,
-    businessModel: String,
+    industry: {
+        type: String,
+        required: true
+    },
     stage: {
         type: String,
-        enum: ['idea', 'prototype', 'mvp', 'launched', 'scaling'],
+        enum: ['idea', 'prototype', 'mvp', 'launched', 'revenue', 'seriesA'],
         default: 'idea'
     },
-    team: [{
-        name: String,
-        role: String,
-        linkedin: String,
-        bio: String
-    }],
+    teamSize: {
+        type: Number,
+        default: 1
+    },
+    foundedDate: {
+        type: Date,
+        default: Date.now
+    },
     metrics: {
-        users: Number,
-        revenue: Number,
-        growthRate: Number
+        users: { type: Number, default: 0 },
+        revenue: { type: Number, default: 0 },
+        growthRate: { type: Number, default: 0 }
+    },
+    mentors: [{
+        mentorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        assignedAt: { type: Date, default: Date.now }
+    }],
+    genomeAnalysis: {
+        marketFitScore: Number,
+        teamStrengthScore: Number,
+        tractionScore: Number,
+        competitorMap: mongoose.Schema.Types.Mixed,
+        growthPredictor: mongoose.Schema.Types.Mixed,
+        lastUpdated: { type: Date, default: Date.now }
     },
     incubatorStatus: {
         type: String,
@@ -80,25 +94,7 @@ const StartupSchema = new mongoose.Schema<IStartup>({
         default: 'applied'
     },
     cohort: String,
-    founder: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    funding: {
-        amount: Number,
-        equity: Number,
-        valuation: Number,
-        date: Date
-    },
-    mentors: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }],
-    // Keep pitch for compatibility as 'tagline' covers it but pitch might be longer
-    pitch: String,
-    website: String,
-    industry: String
+    website: String
 }, {
     timestamps: true
 });

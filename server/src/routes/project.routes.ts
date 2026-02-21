@@ -81,7 +81,7 @@ router.post('/', protect, contentSafety, authorize('founder', 'talent', 'student
         const project = await Project.create({
             title,
             description,
-            postedBy: req.user._id,
+            postedBy: req.user.id,
             skillsRequired,
             projectType,
             duration,

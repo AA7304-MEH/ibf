@@ -46,10 +46,15 @@ export default {
                         900: '#14532d',
                     },
                     // Legacy mapping for existing components
-                    primary: '#3b82f6',
                     secondary: '#a855f7',
                     accent: '#22c55e',
                     dark: '#0f172a',
+                },
+                primary: {
+                    50: 'var(--color-primary-light)',
+                    DEFAULT: 'var(--color-primary)',
+                    600: 'var(--color-primary)',
+                    800: 'var(--color-primary-dark)',
                 },
             },
             fontFamily: {

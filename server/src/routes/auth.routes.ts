@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import User from '../models/User';
+import { gamificationService } from '../services/gamification.service';
 
 const router = express.Router();
 
@@ -126,8 +127,21 @@ router.post('/login', async (req, res) => {
         const isMatch = await user.comparePassword(password);
         console.log(`[Login Debug] User found: ${user.email}, Role: ${user.role}, Password Match: ${isMatch}`);
 
+        // Imported at top level now
+
+        // ... (existing imports)
+
         if (isMatch) {
             console.log('[Login Success] Generating token...');
+
+            // Gamification: Check Streak
+            try {
+                const streak = await gamificationService.checkStreak(user._id as unknown as string);
+                console.log(`[Gamification] User ${user.email} login streak: ${streak}`);
+            } catch (gError) {
+                console.error('[Gamification Error]', gError);
+            }
+
             res.json({
                 _id: user._id,
                 email: user.email,

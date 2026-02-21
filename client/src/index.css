@@ -49,3 +49,35 @@
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-in-out;
 }
+
+/* Module Themes */
+
+/* Incubator - Professional Blue */
+.theme-incubator {
+  --color-primary: #2563eb;
+  /* blue-600 */
+  --color-primary-light: #eff6ff;
+  /* blue-50 */
+  --color-primary-dark: #1e40af;
+  /* blue-800 */
+}
+
+/* Collab - Collaborative Purple */
+.theme-collab {
+  --color-primary: #7c3aed;
+  /* violet-600 */
+  --color-primary-light: #f5f3ff;
+  /* violet-50 */
+  --color-primary-dark: #5b21b6;
+  /* violet-800 */
+}
+
+/* SkillSwap - Educational Green */
+.theme-skillswap {
+  --color-primary: #10b981;
+  /* emerald-500 */
+  --color-primary-light: #ecfdf5;
+  /* emerald-50 */
+  --color-primary-dark: #047857;
+  /* emerald-700 */
+}
