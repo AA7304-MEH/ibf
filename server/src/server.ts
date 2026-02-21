@@ -146,13 +146,18 @@ if (process.env.NODE_ENV === 'production') {
 // Final Error Handling
 app.use(errorHandler);
 
-// Initialization
-connectDB().then(async () => {
-    await seedDatabase();
-    server.listen(PORT, () => {
-        logger.info(`Server running on port ${PORT}`);
+// Export for Vercel
+export default app;
+
+// Initialization (Only listen if not in a serverless/lambda environment)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    connectDB().then(async () => {
+        await seedDatabase();
+        server.listen(PORT, () => {
+            logger.info(`Server running on port ${PORT}`);
+        });
     });
-});
+}
 
 // Graceful Shutdown
 const shutdown = () => {
