@@ -13,7 +13,7 @@ const AuthPage: React.FC = () => {
         searchParams.get('mode') === 'register' ? 'register' : 'login'
     );
     const [isLoading, setIsLoading] = useState(false);
-    const [mockInfo, setMockInfo] = useState<{ message: string; credentials?: string } | null>(null);
+    const [mockInfo, setMockInfo] = useState<{ message: string; credentials?: string; isWarmingUp?: boolean } | null>(null);
 
     const [formData, setFormData] = useState({
         email: '',
@@ -45,7 +45,8 @@ const AuthPage: React.FC = () => {
             if (err.response?.data?.isMockMode) {
                 setMockInfo({
                     message: msg,
-                    credentials: err.response?.data?.availableCredentials
+                    credentials: err.response?.data?.availableCredentials,
+                    isWarmingUp: err.response?.status === 503
                 });
             }
         } finally {
@@ -146,15 +147,17 @@ const AuthPage: React.FC = () => {
                         </div>
 
                         {mockInfo && (
-                            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
-                                <p className="text-xs text-amber-800 font-bold flex items-center gap-1">
+                            <div className={`mt-4 p-3 rounded-md border ${mockInfo.isWarmingUp ? 'bg-blue-50 border-blue-200' : 'bg-amber-50 border-amber-200'}`}>
+                                <p className={`text-xs font-bold flex items-center gap-1 ${mockInfo.isWarmingUp ? 'text-blue-800' : 'text-amber-800'}`}>
                                     <ExclamationTriangleIcon className="w-4 h-4" />
-                                    DATABASE OFFLINE (Mock Mode)
+                                    {mockInfo.isWarmingUp ? 'DATABASE WARMING UP' : 'DATABASE OFFLINE (Mock Mode)'}
                                 </p>
-                                <p className="text-[10px] text-amber-700 mt-1">
-                                    Fallback credentials for local testing:
+                                <p className={`text-[10px] mt-1 ${mockInfo.isWarmingUp ? 'text-blue-700' : 'text-amber-700'}`}>
+                                    {mockInfo.isWarmingUp
+                                        ? 'Initial startup may take 30-60 seconds. You can try these credentials while you wait:'
+                                        : 'Fallback credentials for local testing:'}
                                 </p>
-                                <code className="block mt-1 text-[10px] bg-amber-100 p-1 rounded font-mono text-amber-900 text-center">
+                                <code className={`block mt-1 text-[10px] p-1 rounded font-mono text-center ${mockInfo.isWarmingUp ? 'bg-blue-100 text-blue-900' : 'bg-amber-100 text-amber-900'}`}>
                                     {mockInfo.credentials}
                                 </code>
                             </div>
