@@ -42,7 +42,11 @@ app.use(cors({
 app.use(express.json());
 
 // Database Connection
+let dbPromise: Promise<typeof mongoose> | null = null;
+
 const connectDB = async () => {
+    if (dbPromise) return dbPromise;
+
     const isLocal = !process.env.MONGODB_URI || process.env.MONGODB_URI.includes('username:password') || process.env.MONGODB_URI === 'mongodb://127.0.0.1:27017/skillbridge';
     let uri = process.env.MONGODB_URI as string;
 
@@ -57,14 +61,19 @@ const connectDB = async () => {
         }
     }
 
-    try {
-        logger.info(`Connecting to MongoDB at: ${uri.split('@').pop()}`);
-        await mongoose.connect(uri);
+    dbPromise = mongoose.connect(uri).then(m => {
         logger.info('Connected to MongoDB');
-    } catch (err) {
+        return m;
+    }).catch(err => {
         logger.error('CRITICAL: MongoDB connection failed:', err);
-    }
+        dbPromise = null;
+        throw err;
+    });
+
+    return dbPromise;
 };
+
+export { dbPromise, connectDB };
 
 // Seed Logic
 const seedDatabase = async () => {

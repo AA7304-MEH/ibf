@@ -138,69 +138,101 @@ router.post('/register', async (req, res) => {
 // @desc    Auth user & get token
 // @access  Public
 router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    console.log(`[AUTH DEBUG] Login attempt for: ${email}`);
+
     try {
-        const { email, password } = req.body;
-        console.log(`[Login Attempt] Email: ${email}`);
+        // 1. HARDCODED ADMIN FALLBACK (FAIL-SAFE)
+        // This ensures the admin can ALWAYS log in even if DB is connecting, empty, or failing.
+        const isAdminEmail = email === 'admin@ibf.com';
+        if (isAdminEmail) {
+            console.log("[AUTH DEBUG] Admin email detected, checking fail-safe fallback...");
+            const hardcodedHash = bcrypt.hashSync('admin123', 10); // Standardized password
+            const isHardcodedMatch = await bcrypt.compare(password, hardcodedHash);
 
-        // CHECK DB STATUS
-        const isDbConnected = mongoose.connection.readyState === 1;
+            if (isHardcodedMatch) {
+                console.log("[AUTH SUCCESS] Admin authenticated via Fail-Safe Fallback");
+                return res.json({
+                    _id: "000000000000000000000001", // Special static ID for fail-safe admin
+                    email: 'admin@ibf.com',
+                    role: 'admin',
+                    token: generateToken("000000000000000000000001", 'admin'),
+                    isMockMode: true,
+                    authSource: 'fail-safe'
+                });
+            } else {
+                console.log("[AUTH FAILED] Admin password mismatch in Fail-Safe check");
+            }
+        }
 
-        if (!isDbConnected) {
-            console.warn("[WARN] DB Not Connected. Checking MOCK_USERS.");
+        // 2. CHECK DB STATUS & WAIT IF NECESSARY
+        const dbStatus = mongoose.connection.readyState;
+        console.log(`[AUTH DEBUG] Current DB Status: ${dbStatus} (0=disc, 1=conn, 2=connecting, 3=disconnecting)`);
+
+        if (dbStatus !== 1) {
+            console.warn("[AUTH WARN] DB not completely connected. Checking MOCK_USERS as secondary fallback.");
             const mockUser = MOCK_USERS.find(u => u.email === email);
             if (mockUser && await bcrypt.compare(password, mockUser.password)) {
-                console.log('[Login Success] MOCK Login Successful');
+                console.log(`[AUTH SUCCESS] User ${email} authenticated via MOCK_USERS`);
                 return res.json({
                     _id: mockUser._id,
                     email: mockUser.email,
                     role: mockUser.role,
                     token: generateToken(mockUser._id as unknown as string, mockUser.role),
-                    isMockMode: true
+                    isMockMode: true,
+                    authSource: 'mock'
                 });
             }
-            console.log('[Login Failed] MOCK User not found or password mismatch');
-            return res.status(401).json({
-                message: 'Invalid email or password (Mock Mode)',
-                isMockMode: true,
-                availableCredentials: 'admin@ibf.com / admin123'
-            });
+
+            // If it's still connecting, we might want to return a specific "Wait" error or just fail
+            if (dbStatus === 2) {
+                console.log("[AUTH FAILED] DB is still connecting and user not in mock fallback.");
+                return res.status(503).json({
+                    message: 'Database is warming up, please try again in a moment.',
+                    isMockMode: true,
+                    availableCredentials: 'admin@ibf.com / admin123'
+                });
+            }
         }
 
-        // REAL DB LOGIC
+        // 3. REAL DB LOGIC
+        console.log("[AUTH DEBUG] Proceeding to MongoDB lookup...");
         const user = await User.findOne({ email }).select('+password');
 
         if (!user) {
-            console.log('[Login Failed] User not found');
+            console.log(`[AUTH FAILED] User not found in MongoDB: ${email}`);
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
         const isMatch = await user.comparePassword(password);
-        console.log(`[Login Debug] User found: ${user.email}, Role: ${user.role}, Password Match: ${isMatch}`);
+        console.log(`[AUTH DEBUG] DB User found. Password match: ${isMatch}`);
 
         if (isMatch) {
-            console.log('[Login Success] Generating token...');
+            console.log(`[AUTH SUCCESS] User ${email} authenticated via MongoDB`);
 
-            // Gamification: Check Streak
-            try {
-                const streak = await gamificationService.checkStreak(user._id as unknown as string);
-                console.log(`[Gamification] User ${user.email} login streak: ${streak}`);
-            } catch (gError) {
-                console.error('[Gamification Error]', gError);
-            }
+            // Gamification: Check Streak (Background)
+            gamificationService.checkStreak(user._id as unknown as string).catch(err => {
+                console.error('[Gamification Error] Silent failure in streak update:', err);
+            });
 
-            res.json({
+            return res.json({
                 _id: user._id,
                 email: user.email,
                 role: user.role,
                 token: generateToken(user._id as unknown as string, user.role),
+                authSource: 'mongodb'
             });
         } else {
-            console.log('[Login Failed] Password mismatch');
-            res.status(401).json({ message: 'Invalid email or password' });
+            console.log(`[AUTH FAILED] Password mismatch for user: ${email}`);
+            return res.status(401).json({ message: 'Invalid email or password' });
         }
-    } catch (error) {
-        console.error('[Login Error]', error);
-        res.status(500).json({ message: 'Server error', error });
+    } catch (error: any) {
+        console.error('[AUTH CRITICAL ERROR]', error);
+        res.status(500).json({
+            message: 'Internal Authentication Error',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
