@@ -19,7 +19,7 @@ dotenv.config();
 validateEnv();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const server = http.createServer(app);
 
 // Initialize Socket.io
@@ -35,7 +35,8 @@ app.use(cors({
         'http://localhost:5175',
         'http://localhost:5176',
         'http://localhost:5177',
-        'http://127.0.0.1:5173'
+        'http://127.0.0.1:5173',
+        'https://ibf-sage.vercel.app'
     ],
     credentials: true
 }));
