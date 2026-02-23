@@ -66,7 +66,7 @@ const ParentDashboard: React.FC = () => {
             ]);
             setPendingApprovals([
                 { id: 'a1', childId: '1', childName: 'Alex', type: 'internship', title: 'UI Design Internship at TechCorp', description: '2-week virtual internship with real-world projects', requestedAt: new Date(Date.now() - 3600000), details: { duration: '2 weeks', compensation: 'Unpaid (500 XP)', company: 'TechCorp Inc.' } },
-                { id: 'a2', childId: '2', childName: 'Emma', type: 'course', title: 'Advanced Python Programming', description: 'In-depth course covering advanced programming concepts', requestedAt: new Date(Date.now() - 7200000), details: { duration: '4 weeks', cost: '50 credits', instructor: 'Dr. Smith' } },
+                { id: 'a2', childId: '2', childName: 'Emma', type: 'course', title: 'Advanced Python Programming', description: 'In-depth course covering advanced programming concepts', requestedAt: new Date(Date.now() - 7200000), details: { duration: '4 weeks', instructor: 'Dr. Smith' } },
                 { id: 'a3', childId: '1', childName: 'Alex', type: 'mentor', title: 'Mentor Request: Sarah Chen', description: 'Request to connect with industry mentor for guidance', requestedAt: new Date(Date.now() - 10800000), details: { specialty: 'Frontend Development', experience: '8 years', sessions: '4 weekly calls' } }
             ]);
             setActivityLog([

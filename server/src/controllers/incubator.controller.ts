@@ -128,3 +128,56 @@ export const getFounderCopilotAdvice = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+export const reviewPitchDeck = async (req: Request, res: Response) => {
+    try {
+        const { startupId } = req.body;
+        // In real app, use multer to get file buffer
+        const analysis = await incubatorService.reviewPitchDeck(startupId, Buffer.from([]));
+        res.json(analysis);
+    } catch (error) {
+        res.status(500).json({ message: 'Pitch deck analysis failed' });
+    }
+};
+
+export const generateLegalDoc = async (req: Request, res: Response) => {
+    try {
+        const { startupId, type } = req.body;
+        const startup = await Startup.findById(startupId);
+        if (!startup) return res.status(404).json({ message: 'Startup not found' });
+
+        const doc = await incubatorService.generateLegalDocument(type, startup);
+        res.json({ document: doc });
+    } catch (error) {
+        res.status(500).json({ message: 'Document generation failed' });
+    }
+};
+
+export const getGenomeAnalysis = async (req: Request, res: Response) => {
+    try {
+        const startup = await Startup.findById(req.params.id);
+        if (!startup) return res.status(404).json({ message: 'Startup not found' });
+        res.json(startup.genomeAnalysis || { message: 'No analysis found' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch genome analysis' });
+    }
+};
+
+export const runGenomeAnalysis = async (req: Request, res: Response) => {
+    try {
+        // Simulation of AI Genome Analysis
+        const startup = await Startup.findById(req.params.id);
+        if (!startup) return res.status(404).json({ message: 'Startup not found' });
+
+        startup.genomeAnalysis = {
+            marketFitScore: 70 + Math.floor(Math.random() * 25),
+            teamStrengthScore: 65 + Math.floor(Math.random() * 30),
+            tractionScore: 40 + Math.floor(Math.random() * 50),
+            lastUpdated: new Date()
+        };
+        await startup.save();
+        res.json(startup.genomeAnalysis);
+    } catch (error) {
+        res.status(500).json({ message: 'Genome analysis run failed' });
+    }
+};

@@ -68,6 +68,31 @@ class SocketService {
                 this.io?.to(`project_${data.projectId}`).emit('new_message', message);
             });
 
+            // Multiverse HQ Events
+            socket.on('join_office', (data: { room: string, name: string }) => {
+                socket.join(data.room);
+                console.log(`User ${socket.id} joined office room: ${data.room}`);
+
+                // Track user in room (mock state for now)
+                // In production, we'd use Redis or a DB to track positions
+            });
+
+            socket.on('move', (data: { room: string, position: [number, number, number] }) => {
+                socket.to(data.room).emit('player_moved', {
+                    id: socket.id,
+                    position: data.position
+                });
+            });
+
+            socket.on('chat_message', (data: { room: string, text: string, sender: string }) => {
+                const message = {
+                    ...data,
+                    id: Date.now().toString(),
+                    timestamp: new Date().toLocaleTimeString()
+                };
+                socket.to(data.room).emit('new_chat', message);
+            });
+
             socket.on('disconnect', () => {
                 console.log(`User disconnected: ${socket.id}`);
             });

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Project from '../models/Project';
 import User from '../models/User';
+import TalentProfile from '../models/TalentProfile';
 import CollabApplication from '../models/CollabApplication';
 import { GamificationEngine } from '../services/GamificationEngine';
 
@@ -182,5 +183,63 @@ export const applyToProject = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'You have already applied to this project' });
         }
         res.status(500).json({ message: 'Error submitting application' });
+    }
+};
+
+export const getApplicationsForProject = async (req: Request, res: Response) => {
+    try {
+        const apps = await CollabApplication.find({ project: req.params.projectId }).populate('applicant', 'firstName lastName email avatar headline');
+        res.json(apps);
+    } catch (e) {
+        res.status(500).json({ message: 'Error' });
+    }
+};
+
+export const hireTalent = async (req: Request, res: Response) => {
+    try {
+        const { applicationId } = req.body;
+        const application = await CollabApplication.findById(applicationId);
+        if (!application) return res.status(404).json({ message: 'Application not found' });
+
+        const project = await Project.findById(application.project);
+        if (!project) return res.status(404).json({ message: 'Project not found' });
+
+        // Update project
+        project.hiredTalentId = application.applicant;
+        project.status = 'in_progress';
+        await project.save();
+
+        // Update application
+        application.status = 'hired';
+        await application.save();
+
+        // Reject others
+        await CollabApplication.updateMany(
+            { project: project._id, _id: { $ne: application._id } },
+            { status: 'rejected' }
+        );
+
+        res.json({ message: 'Talent hired successfully', project });
+    } catch (e) {
+        res.status(500).json({ message: 'Hiring failed' });
+    }
+};
+
+export const updateProjectMilestone = async (req: Request, res: Response) => {
+    try {
+        const { projectId, milestoneIndex, completed } = req.body;
+        const project = await Project.findById(projectId);
+        if (!project) return res.status(404).json({ message: 'Project not found' });
+
+        if (!project.milestones[milestoneIndex]) {
+            return res.status(400).json({ message: 'Invalid milestone index' });
+        }
+
+        project.milestones[milestoneIndex].completed = completed;
+        await project.save();
+
+        res.json(project);
+    } catch (e) {
+        res.status(500).json({ message: 'Error' });
     }
 };

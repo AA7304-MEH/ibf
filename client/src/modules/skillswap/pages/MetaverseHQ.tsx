@@ -28,8 +28,12 @@ import {
     HandRaisedIcon,
     FaceSmileIcon,
     InformationCircleIcon,
-    ExclamationTriangleIcon
+    ExclamationTriangleIcon,
+    GlobeAltIcon
 } from '@heroicons/react/24/outline';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, Sphere, Text, PerspectiveCamera, OrbitControls, Environment, ContactShadows, Stars, Line } from '@react-three/drei';
+import * as THREE from 'three';
 
 interface Room {
     id: string;
@@ -77,6 +81,108 @@ interface Reaction {
     timestamp: number;
 }
 
+// --- 3D Components for Ecosystem Brain ---
+
+const RoomNode = ({
+    room,
+    position,
+    isSelected,
+    onClick
+}: {
+    room: Room,
+    position: [number, number, number],
+    isSelected: boolean,
+    onClick: () => void
+}) => {
+    return (
+        <group position={position}>
+            <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+                <Sphere args={[0.7, 32, 32]} onClick={(e) => { e.stopPropagation(); onClick(); }}>
+                    <meshStandardMaterial
+                        color={isSelected ? "#6366f1" : "#1e293b"}
+                        emissive={isSelected ? "#6366f1" : "#000000"}
+                        emissiveIntensity={0.5}
+                        roughness={0.1}
+                        metalness={0.9}
+                    />
+                </Sphere>
+                <Text
+                    position={[0, 0, 0.72]}
+                    fontSize={0.4}
+                    color="white"
+                    anchorX="center"
+                    anchorY="middle"
+                >
+                    {room.icon}
+                </Text>
+            </Float>
+            <Text
+                position={[0, 1.2, 0]}
+                fontSize={0.2}
+                color={isSelected ? "#818cf8" : "#94a3b8"}
+                anchorX="center"
+                anchorY="middle"
+            >
+                {room.name.toUpperCase()}
+            </Text>
+            <Text
+                position={[0, -1.2, 0]}
+                fontSize={0.15}
+                color="#64748b"
+                anchorX="center"
+                anchorY="middle"
+            >
+                {room.occupancy}/{room.maxOccupancy}
+            </Text>
+        </group>
+    );
+};
+
+const EcosystemBrain = ({ rooms, onSelectRoom, selectedRoomId }: {
+    rooms: Room[],
+    onSelectRoom: (room: Room) => void,
+    selectedRoomId?: string
+}) => {
+    // Distribute rooms in a spherical layout
+    const positions = useMemo(() => {
+        return rooms.map((_, i) => {
+            const phi = Math.acos(-1 + (2 * i) / rooms.length);
+            const theta = Math.sqrt(rooms.length * Math.PI) * phi;
+            const r = 5;
+            return [
+                r * Math.cos(theta) * Math.sin(phi),
+                r * Math.sin(theta) * Math.sin(phi),
+                r * Math.cos(phi)
+            ] as [number, number, number];
+        });
+    }, [rooms]);
+
+    return (
+        <group>
+            {rooms.map((room, i) => (
+                <React.Fragment key={room.id}>
+                    <RoomNode
+                        room={room}
+                        position={positions[i]}
+                        isSelected={selectedRoomId === room.id}
+                        onClick={() => onSelectRoom(room)}
+                    />
+                    {/* Neural filaments between nodes */}
+                    {i > 0 && (
+                        <Line
+                            points={[positions[0], positions[i]]}
+                            color="#4f46e5"
+                            lineWidth={1}
+                            transparent
+                            opacity={0.1}
+                        />
+                    )}
+                </React.Fragment>
+            ))}
+        </group>
+    );
+};
+
 const MetaverseHQ: React.FC = () => {
     // ... (existing hooks)
     const { roomId } = useParams<{ roomId?: string }>();
@@ -104,6 +210,7 @@ const MetaverseHQ: React.FC = () => {
     const [linkCopied, setLinkCopied] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [showResources, setShowResources] = useState(false);
+    const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
 
     // Settings & Notifications
     const [showSettings, setShowSettings] = useState(false);
@@ -1473,13 +1580,29 @@ const MetaverseHQ: React.FC = () => {
                                 <p className="text-white/70">Your virtual campus for learning and collaboration</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => setShowCreateRoom(true)}
-                            className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors"
-                        >
-                            <PlusIcon className="w-5 h-5" />
-                            Create Room
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <div className="flex bg-black/20 p-1 rounded-xl">
+                                <button
+                                    onClick={() => setViewMode('2d')}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === '2d' ? 'bg-white text-indigo-600 shadow-lg' : 'text-white/50 hover:text-white'}`}
+                                >
+                                    2D GRID
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('3d')}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === '3d' ? 'bg-white text-indigo-600 shadow-lg' : 'text-white/50 hover:text-white'}`}
+                                >
+                                    3D BRAIN
+                                </button>
+                            </div>
+                            <button
+                                onClick={() => setShowCreateRoom(true)}
+                                className="bg-white/20 hover:bg-white/30 px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-colors"
+                            >
+                                <PlusIcon className="w-5 h-5" />
+                                Create Room
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-6 text-sm">
@@ -1504,65 +1627,95 @@ const MetaverseHQ: React.FC = () => {
                 <div className="lg:col-span-3">
                     <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                         <BuildingOffice2Icon className="w-6 h-6 text-indigo-400" />
-                        Virtual Spaces
+                        {viewMode === '2d' ? 'Virtual Spaces' : 'Ecosystem Brain'}
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {rooms.map((room, idx) => (
-                            <motion.div
-                                key={room.id}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: idx * 0.05 }}
-                                whileHover={{ scale: 1.03, y: -5 }}
-                                className="relative overflow-hidden rounded-2xl cursor-pointer group"
-                                onClick={() => setSelectedRoom(room)}
-                            >
-                                {room.isCustom && (
-                                    <div className="absolute top-2 right-2 z-20 bg-indigo-600 text-xs px-2 py-1 rounded-full">
-                                        Custom
-                                    </div>
-                                )}
-                                <div className={`absolute inset-0 bg-gradient-to-br ${room.color} opacity-90`}></div>
-                                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
 
-                                <div className="relative z-10 p-6">
-                                    <div className="text-5xl mb-4">{room.icon}</div>
-                                    <h3 className="text-xl font-bold mb-1">{room.name}</h3>
-                                    <p className="text-white/70 text-sm mb-4">{room.description}</p>
+                    {viewMode === '3d' ? (
+                        <div className="bg-black/40 rounded-3xl h-[600px] relative overflow-hidden border border-white/5 shadow-2xl">
+                            <Canvas shadows>
+                                <PerspectiveCamera makeDefault position={[0, 0, 12]} fov={50} />
+                                <OrbitControls enablePan={false} maxDistance={20} minDistance={5} autoRotate autoRotateSpeed={0.5} />
+                                <ambientLight intensity={0.2} />
+                                <pointLight position={[10, 10, 10]} intensity={1.5} color="#4f46e5" />
+                                <Environment preset="night" />
+                                <Stars speed={1} factor={4} saturation={0} fade />
 
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <UserGroupIcon className="w-5 h-5" />
-                                            <span className="text-sm">{room.occupancy}/{room.maxOccupancy}</span>
+                                <EcosystemBrain
+                                    rooms={rooms}
+                                    onSelectRoom={setSelectedRoom}
+                                    selectedRoomId={selectedRoom?.id}
+                                />
+
+                                <ContactShadows position={[0, -6, 0]} opacity={0.4} scale={30} blur={2.5} far={10} />
+                            </Canvas>
+                            <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white/50 font-mono tracking-widest uppercase pointer-events-none">
+                                Mode: Immersive Spatial Visualization
+                            </div>
+                            <div className="absolute bottom-4 left-4 right-4 flex justify-center pointer-events-none">
+                                <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.2em] bg-indigo-900/20 px-4 py-1.5 rounded-full border border-indigo-500/20">
+                                    Click nodes to preview spaces • Drag to rotate ecosystem
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {rooms.map((room, idx) => (
+                                <motion.div
+                                    key={room.id}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: idx * 0.05 }}
+                                    whileHover={{ scale: 1.03, y: -5 }}
+                                    className="relative overflow-hidden rounded-2xl cursor-pointer group"
+                                    onClick={() => setSelectedRoom(room)}
+                                >
+                                    {room.isCustom && (
+                                        <div className="absolute top-2 right-2 z-20 bg-indigo-600 text-xs px-2 py-1 rounded-full">
+                                            Custom
                                         </div>
-                                        {room.isLive ? (
-                                            <div className="flex items-center gap-1 text-green-300">
-                                                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                                <span className="text-xs font-medium">LIVE</span>
+                                    )}
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${room.color} opacity-90`}></div>
+                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+
+                                    <div className="relative z-10 p-6">
+                                        <div className="text-5xl mb-4">{room.icon}</div>
+                                        <h3 className="text-xl font-bold mb-1">{room.name}</h3>
+                                        <p className="text-white/70 text-sm mb-4">{room.description}</p>
+
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <UserGroupIcon className="w-5 h-5" />
+                                                <span className="text-sm">{room.occupancy}/{room.maxOccupancy}</span>
                                             </div>
-                                        ) : (
-                                            <span className="text-xs text-white/50">Offline</span>
+                                            {room.isLive ? (
+                                                <div className="flex items-center gap-1 text-green-300">
+                                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                                    <span className="text-xs font-medium">LIVE</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-white/50">Offline</span>
+                                            )}
+                                        </div>
+
+                                        {room.nextEvent && (
+                                            <div className="mt-4 pt-4 border-t border-white/20">
+                                                <p className="text-xs text-white/70">
+                                                    <SparklesIcon className="w-4 h-4 inline mr-1" />
+                                                    {room.nextEvent}
+                                                </p>
+                                            </div>
                                         )}
                                     </div>
 
-                                    {room.nextEvent && (
-                                        <div className="mt-4 pt-4 border-t border-white/20">
-                                            <p className="text-xs text-white/70">
-                                                <SparklesIcon className="w-4 h-4 inline mr-1" />
-                                                {room.nextEvent}
-                                            </p>
+                                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
+                                            <ArrowRightIcon className="w-5 h-5" />
                                         </div>
-                                    )}
-                                </div>
-
-                                <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
-                                        <ArrowRightIcon className="w-5 h-5" />
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Sidebar */}

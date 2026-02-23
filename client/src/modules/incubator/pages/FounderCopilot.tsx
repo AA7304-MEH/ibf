@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { LightBulbIcon, FireIcon, HandThumbUpIcon, ChatBubbleLeftRightIcon, SparklesIcon, PaperAirplaneIcon } from '@heroicons/react/24/solid';
+import {
+    LightBulbIcon,
+    FireIcon,
+    HandThumbUpIcon,
+    ChatBubbleLeftRightIcon,
+    SparklesIcon,
+    PaperAirplaneIcon,
+    DocumentMagnifyingGlassIcon,
+    ScaleIcon
+} from '@heroicons/react/24/solid';
 
 const FounderCopilot: React.FC = () => {
     const [messages, setMessages] = useState<any[]>([
@@ -10,6 +19,9 @@ const FounderCopilot: React.FC = () => {
     const [isTyping, setIsTyping] = useState(false);
     const [cognitiveLoad, setCognitiveLoad] = useState(75);
     const [mentalState, setMentalState] = useState('Peak Performance');
+
+    const [activeTab, setActiveTab] = useState<'chat' | 'pitch' | 'legal'>('chat');
+    const [analysisResult, setAnalysisResult] = useState<any>(null);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -75,9 +87,28 @@ const FounderCopilot: React.FC = () => {
                 {/* Main AI Chat Interface */}
                 <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col h-[650px]">
                     <div className="bg-gradient-to-r from-indigo-600 to-blue-600 p-4 text-white flex justify-between items-center">
-                        <div className="flex items-center">
-                            <LightBulbIcon className="w-6 h-6 mr-2" />
-                            <span className="font-bold text-lg">CEO Copilot v4.2</span>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setActiveTab('chat')}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${activeTab === 'chat' ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                            >
+                                <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                                <span className="font-bold">Copilot Chat</span>
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('pitch')}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${activeTab === 'pitch' ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                            >
+                                <DocumentMagnifyingGlassIcon className="w-5 h-5" />
+                                <span className="font-bold">Pitch Review</span>
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('legal')}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-colors ${activeTab === 'legal' ? 'bg-white/20' : 'hover:bg-white/10'}`}
+                            >
+                                <ScaleIcon className="w-5 h-5" />
+                                <span className="font-bold">Legal Gen</span>
+                            </button>
                         </div>
                         <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-sm">
                             Mental State: {mentalState}
@@ -85,60 +116,49 @@ const FounderCopilot: React.FC = () => {
                     </div>
 
                     <div className="flex-1 p-6 overflow-y-auto space-y-6 bg-gray-50/50">
-                        {messages.map((msg: any, idx: number) => (
-                            <div key={idx} className={`flex items-start ${msg.role === 'user' ? 'justify-end' : ''}`}>
-                                {msg.role === 'ai' && (
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mr-4 flex-shrink-0 shadow-lg border-2 border-white">
-                                        <SparklesIcon className="w-5 h-5 text-white" />
-                                    </div>
-                                )}
-                                <div className={`p-4 rounded-2xl shadow-sm border ${msg.role === 'user'
-                                    ? 'bg-indigo-600 text-white rounded-tr-none border-indigo-500 max-w-lg'
-                                    : 'bg-white text-gray-800 rounded-tl-none border-gray-100 max-w-xl'
-                                    }`}>
-                                    <p className={msg.role === 'user' ? 'text-white' : 'text-gray-800'}>{msg.text}</p>
-
-                                    {msg.recommendation && (
-                                        <div className="mt-4 p-3 bg-indigo-50 rounded-xl border border-indigo-100">
-                                            <p className="text-xs font-bold text-indigo-800 uppercase mb-1 flex items-center gap-1">
-                                                <FireIcon className="w-3 h-3" /> Proactive Insight
-                                            </p>
-                                            <p className="text-sm text-indigo-700 leading-relaxed font-medium">{msg.recommendation}</p>
+                        {activeTab === 'chat' && (
+                            <>
+                                {messages.map((msg: any, idx: number) => (
+                                    <div key={idx} className={`flex items-start ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                                        {msg.role === 'ai' && (
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mr-4 flex-shrink-0 shadow-lg border-2 border-white">
+                                                <SparklesIcon className="w-5 h-5 text-white" />
+                                            </div>
+                                        )}
+                                        <div className={`p-4 rounded-2xl shadow-sm border ${msg.role === 'user'
+                                            ? 'bg-indigo-600 text-white rounded-tr-none border-indigo-500 max-w-lg'
+                                            : 'bg-white text-gray-800 rounded-tl-none border-gray-100 max-w-xl'
+                                            }`}>
+                                            <p className={msg.role === 'user' ? 'text-white' : 'text-gray-800'}>{msg.text}</p>
                                         </div>
-                                    )}
-
-                                    {msg.items && msg.items.length > 0 && (
-                                        <div className="mt-4 space-y-2">
-                                            {msg.items.map((item: any, i: number) => (
-                                                <button
-                                                    key={i}
-                                                    onClick={() => handleSend(`Tell me more about ${item.title}`)}
-                                                    className="w-full text-left p-3 hover:bg-gray-50 bg-white border border-gray-200 rounded-xl transition flex items-start group"
-                                                >
-                                                    <ChatBubbleLeftRightIcon className="w-5 h-5 text-gray-400 mr-3 mt-0.5 group-hover:text-indigo-500 transition-colors" />
-                                                    <div>
-                                                        <p className="font-bold text-sm text-gray-900">{item.title}</p>
-                                                        <p className="text-xs text-gray-500">{item.desc}</p>
-                                                    </div>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                                {msg.role === 'user' && (
-                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center ml-4 flex-shrink-0 border-2 border-white shadow-md">
-                                        👤
                                     </div>
-                                )}
+                                ))}
+                            </>
+                        )}
+
+                        {activeTab === 'pitch' && (
+                            <div className="h-full flex flex-col items-center justify-center text-center p-8 bg-white rounded-xl border-2 border-dashed border-gray-200">
+                                <DocumentMagnifyingGlassIcon className="w-16 h-16 text-indigo-400 mb-4" />
+                                <h3 className="text-xl font-bold text-gray-900">AI Pitch Deck Audit</h3>
+                                <p className="text-gray-500 mb-6 max-w-md">Upload your pitch deck in PDF format for an instant AI critique focused on investor expectations.</p>
+                                <input type="file" id="pitch-upload" className="hidden" accept=".pdf" />
+                                <label htmlFor="pitch-upload" className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold cursor-pointer hover:bg-indigo-700 transition">
+                                    Upload PDF Deck
+                                </label>
                             </div>
-                        ))}
+                        )}
 
-                        {isTyping && (
-                            <div className="flex items-center gap-2 text-gray-400 text-sm font-medium ml-14">
-                                <span className="animate-bounce">●</span>
-                                <span className="animate-bounce [animation-delay:0.2s]">●</span>
-                                <span className="animate-bounce [animation-delay:0.4s]">●</span>
-                                <span className="ml-1">Synthesizing strategy...</span>
+                        {activeTab === 'legal' && (
+                            <div className="h-full space-y-6">
+                                <h3 className="text-xl font-bold text-gray-900">Instant AI Legal Docs</h3>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {['SAFE Agreement', 'Founder Agreement', 'Term Sheet', 'NDA'].map((type) => (
+                                        <button key={type} className="p-4 bg-white border border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-md transition text-left group">
+                                            <p className="font-bold text-gray-900 group-hover:text-indigo-600">{type}</p>
+                                            <p className="text-xs text-gray-500 mt-1">Generate compliant {type.toLowerCase()} draft.</p>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>

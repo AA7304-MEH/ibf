@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import http from 'http';
 import path from 'path';
 import { socketService } from './services/socketService';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { logger } from './utils/logger';
 import { validateEnv } from './utils/validateEnv';
@@ -42,8 +43,19 @@ app.use(express.json());
 
 // Database Connection
 const connectDB = async () => {
-    const isLocal = !process.env.MONGODB_URI || process.env.MONGODB_URI.includes('username:password');
-    const uri = isLocal ? 'mongodb://127.0.0.1:27017/skillbridge' : process.env.MONGODB_URI as string;
+    const isLocal = !process.env.MONGODB_URI || process.env.MONGODB_URI.includes('username:password') || process.env.MONGODB_URI === 'mongodb://127.0.0.1:27017/skillbridge';
+    let uri = process.env.MONGODB_URI as string;
+
+    if (isLocal) {
+        try {
+            const mongod = await MongoMemoryServer.create();
+            uri = mongod.getUri();
+            logger.info('Using MongoDB Memory Server for local development');
+        } catch (err) {
+            logger.error('Failed to start MongoDB Memory Server, falling back to local port 27017');
+            uri = 'mongodb://127.0.0.1:27017/skillbridge';
+        }
+    }
 
     try {
         logger.info(`Connecting to MongoDB at: ${uri.split('@').pop()}`);
@@ -51,7 +63,6 @@ const connectDB = async () => {
         logger.info('Connected to MongoDB');
     } catch (err) {
         logger.error('CRITICAL: MongoDB connection failed:', err);
-        // Fallback or exit
     }
 };
 
@@ -149,15 +160,22 @@ app.use(errorHandler);
 // Export for Vercel
 export default app;
 
-// Initialization (Only listen if not in a serverless/lambda environment)
+// Initialization
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-    connectDB().then(async () => {
-        await seedDatabase();
-        server.listen(PORT, () => {
-            logger.info(`Server running on port ${PORT}`);
-        });
+    // Start Server Immediately (only for local/dedicated host)
+    server.listen(PORT, () => {
+        logger.info(`Server running on port ${PORT}`);
     });
 }
+
+// Always try to connect to DB and seed (including on Vercel)
+connectDB().then(async () => {
+    try {
+        await seedDatabase();
+    } catch (e) {
+        logger.error('Seeding skipped (possibly already seeded or DB error)');
+    }
+});
 
 // Graceful Shutdown
 const shutdown = () => {

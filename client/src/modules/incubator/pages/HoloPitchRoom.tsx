@@ -1,8 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { VideoCameraIcon, MicrophoneIcon, SignalIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 const HoloPitchRoom: React.FC = () => {
+    const navigate = useNavigate();
     const investors = [
         { name: "Sarah 'The Shark'", style: "Aggressive", sentiment: 35, feedback: "Numbers seem inflated." },
         { name: "Marcus Vision", style: "Visionary", sentiment: 85, feedback: "Love the moonshot potential." },
@@ -101,7 +103,10 @@ const HoloPitchRoom: React.FC = () => {
 
                     <div className="h-12 w-px bg-gray-700" />
 
-                    <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold">
+                    <button
+                        onClick={() => navigate('/incubator/pitch-analysis')}
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-bold"
+                    >
                         End Pitch
                     </button>
                 </div>

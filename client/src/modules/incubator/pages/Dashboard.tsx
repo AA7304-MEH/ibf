@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
 import {
     ClockIcon,
     CheckCircleIcon,
-    XCircleIcon,
     ChatBubbleLeftRightIcon,
-    DocumentTextIcon,
-    UserGroupIcon
+    UserGroupIcon,
+    ChartPieIcon,
+    ListBulletIcon,
+    PlusIcon,
+    AcademicCapIcon
 } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 
@@ -57,8 +58,8 @@ const IncubatorDashboard: React.FC = () => {
                         {application.timeline.map((item, idx) => (
                             <div key={idx} className="flex flex-col items-center text-center">
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 ${item.status === 'completed' ? 'bg-green-500 border-green-200 text-white' :
-                                        item.status === 'current' ? 'bg-ibf-primary border-blue-200 text-white animate-pulse' :
-                                            'bg-white border-gray-200 text-gray-300'
+                                    item.status === 'current' ? 'bg-ibf-primary border-blue-200 text-white animate-pulse' :
+                                        'bg-white border-gray-200 text-gray-300'
                                     } shadow-sm transition-colors duration-300`}>
                                     {item.status === 'completed' ? <CheckCircleIcon className="w-6 h-6" /> :
                                         item.status === 'current' ? <ClockIcon className="w-6 h-6" /> :
@@ -75,61 +76,124 @@ const IncubatorDashboard: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Communications */}
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                {/* Key Metrics */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 lg:col-span-2">
                     <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                        <ChatBubbleLeftRightIcon className="w-5 h-5 text-gray-400" /> Communications
+                        <ChartPieIcon className="w-5 h-5 text-ibf-primary" /> Key Startup Metrics
                     </h3>
-                    <div className="space-y-4">
-                        <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                            <div className="flex justify-between items-start mb-2">
-                                <span className="font-bold text-sm">IBF Admin</span>
-                                <span className="text-xs text-gray-400">Today</span>
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
-                                Congratulations on your acceptance! Please check your email for the onboarding kit.
-                            </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Monthly Active Users</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">1,240</p>
+                            <p className="text-xs text-green-600 mt-1">↑ 12% vs last month</p>
                         </div>
-                        <button className="w-full text-center text-sm text-ibf-primary font-medium hover:underline">View All Messages</button>
+                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl">
+                            <p className="text-sm text-green-600 dark:text-green-400 font-medium">Revenue (MRR)</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">${(12400).toLocaleString()}</p>
+                            <p className="text-xs text-green-600 mt-1">↑ 8% vs last month</p>
+                        </div>
+                        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                            <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">Growth Rate</p>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">24%</p>
+                            <p className="text-xs text-purple-600 mt-1">On track for Q1</p>
+                        </div>
                     </div>
                 </div>
 
-                {/* Profile Management */}
+                {/* Team Presence */}
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                     <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                        <DocumentTextIcon className="w-5 h-5 text-gray-400" /> Manage Profile
+                        <UserGroupIcon className="w-5 h-5 text-gray-400" /> Team Presence
                     </h3>
                     <div className="space-y-3">
-                        <button className="w-full text-left px-4 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 transition-colors flex justify-between items-center group">
-                            <span className="text-sm font-medium">Edit Application Info</span>
-                            <span className="text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Sarah (Founder) - Online</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-gray-300"></div>
+                            <span className="text-sm text-gray-500 italic">John (Technical) - Offline</span>
+                        </div>
+                        <Link to="/incubator/multiverse" className="block w-full text-center py-2 bg-ibf-primary/10 text-ibf-primary rounded-lg text-sm font-medium hover:bg-ibf-primary/20 transition-colors">
+                            Enter Virtual Office
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Task Manager (Kanban Preview) */}
+                <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 lg:col-span-2">
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="font-bold text-lg flex items-center gap-2">
+                            <ListBulletIcon className="w-5 h-5 text-ibf-primary" /> Active Tasks
+                        </h3>
+                        <button className="flex items-center gap-1 text-sm bg-ibf-primary text-white px-3 py-1.5 rounded-lg hover:bg-ibf-primary-dark transition-colors">
+                            <PlusIcon className="w-4 h-4" /> New Task
                         </button>
-                        <button className="w-full text-left px-4 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 transition-colors flex justify-between items-center group">
-                            <span className="text-sm font-medium">Update Pitch Deck</span>
-                            <span className="text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
-                        </button>
-                        <button className="w-full text-left px-4 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 transition-colors flex justify-between items-center group">
-                            <span className="text-sm font-medium">Manage Team</span>
-                            <span className="text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
-                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="space-y-3">
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">To Do (2)</p>
+                            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600 text-sm">
+                                Refine pitch deck for Sarah
+                                <p className="text-xs text-gray-400 mt-2">Due Feb 25</p>
+                            </div>
+                            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-100 dark:border-gray-600 text-sm">
+                                Setup MongoDB indexing
+                                <p className="text-xs text-gray-400 mt-2">Due Mar 01</p>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <p className="text-xs font-bold text-blue-500 uppercase tracking-wider">In Progress (1)</p>
+                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 text-sm">
+                                API Security Audit
+                                <p className="text-xs text-blue-400 mt-2">Assigned to: John</p>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <p className="text-xs font-bold text-green-500 uppercase tracking-wider">Done (3)</p>
+                            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800 text-sm opacity-60">
+                                Landing Page MVP
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Resources (If Accepted) */}
-                <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-purple-100 dark:border-purple-800">
-                    <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-purple-900 dark:text-purple-100">
-                        <UserGroupIcon className="w-5 h-5" /> Founder Resources
-                    </h3>
-                    <p className="text-sm text-purple-800 dark:text-purple-200 mb-4">
-                        Exclusive perks for accepted founders.
-                    </p>
-                    <div className="space-y-3">
-                        <button className="w-full bg-white dark:bg-gray-800 text-purple-700 font-medium py-2 rounded-lg shadow-sm hover:shadow transition-shadow">
-                            Book Mentor Hours
-                        </button>
-                        <button className="w-full bg-white dark:bg-gray-800 text-purple-700 font-medium py-2 rounded-lg shadow-sm hover:shadow transition-shadow">
-                            Legal Templates
-                        </button>
+                <div className="space-y-6">
+                    {/* Communications */}
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                            <ChatBubbleLeftRightIcon className="w-5 h-5 text-gray-400" /> Communications
+                        </h3>
+                        <div className="space-y-4">
+                            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div className="flex justify-between items-start mb-2">
+                                    <span className="font-bold text-sm">IBF Admin</span>
+                                    <span className="text-xs text-gray-400">Today</span>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300">
+                                    Congratulations on your acceptance! Please check your email for the onboarding kit.
+                                </p>
+                            </div>
+                            <button className="w-full text-center text-sm text-ibf-primary font-medium hover:underline">View All Messages</button>
+                        </div>
+                    </div>
+
+                    {/* Resources */}
+                    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-purple-100 dark:border-purple-800">
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2 text-purple-900 dark:text-purple-100">
+                            <AcademicCapIcon className="w-5 h-5" /> Founder Resources
+                        </h3>
+                        <div className="space-y-3 font-medium">
+                            <button className="w-full bg-white dark:bg-gray-800 text-purple-700 py-2.5 rounded-lg shadow-sm hover:shadow transition-shadow">
+                                Book Mentor Hours
+                            </button>
+                            <button className="w-full bg-white dark:bg-gray-800 text-purple-700 py-2.5 rounded-lg shadow-sm hover:shadow transition-shadow">
+                                Legal Templates (SAFE)
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

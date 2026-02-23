@@ -17,7 +17,7 @@ const checkAdmin = async () => {
         const User = (await import('./models/User')).default;
 
         const adminEmail = 'admin@ibf.com';
-        const adminPassword = 'adminpassword123';
+        const adminPassword = 'admin123';
 
         const admin = await User.findOne({ email: adminEmail }).select('+password');
 

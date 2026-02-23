@@ -24,10 +24,12 @@ import IncubatorStartupDetail from './modules/incubator/pages/StartupDetail';
 import IncubatorLanding from './modules/incubator/pages/Landing';
 
 // Incubator Features
+import MultiverseHQ from './modules/incubator/pages/MultiverseHQ';
 import StartupMultiverse from './modules/incubator/pages/StartupMultiverse';
 import FounderCopilot from './modules/incubator/pages/FounderCopilot';
 import HoloPitchRoom from './modules/incubator/pages/HoloPitchRoom';
 import StartupGenome from './modules/incubator/pages/Genome/StartupGenome';
+import PitchAnalysisResults from './modules/incubator/pages/PitchAnalysisResults';
 
 // Collab Module
 import CollabMarketplace from './modules/collab/pages/Marketplace';
@@ -38,6 +40,7 @@ import CollabLanding from './modules/collab/pages/Marketplace';
 // Collab Features
 import NeuralTalentMatch from './modules/collab/pages/NeuralTalentMatch';
 import ProjectWarRoom from './modules/collab/pages/ProjectWarRoom';
+import ProjectWarRoom3D from './modules/collab/pages/ProjectWarRoom3D';
 import WorkDNA from './modules/collab/pages/WorkDNA';
 import SkillEvolution from './modules/collab/pages/SkillEvolution';
 
@@ -96,6 +99,7 @@ import InternshipWorkflow from './pages/MicroInternships/InternshipWorkflow';
 import SkillWalletPage from './modules/skillswap/pages/SkillWallet';
 import MetaverseHQ from './modules/skillswap/pages/MetaverseHQ';
 import ParentDashboardNew from './modules/skillswap/pages/parent/ParentDashboard';
+import CompanyDashboard from './modules/skillswap/pages/CompanyDashboard';
 
 // Phase 5-6 Features
 import GlobalImpactDashboard from './modules/skillswap/pages/GlobalImpactDashboard';
@@ -132,10 +136,12 @@ const App: React.FC = () => {
                         <Route path="startups" element={<IncubatorStartups />} />
                         <Route path="startups/:id" element={<IncubatorStartupDetail />} />
                         <Route path="apply" element={<IncubatorApply />} />
-                        <Route path="multiverse" element={<StartupMultiverse />} />
+                        <Route path="multiverse" element={<MultiverseHQ />} />
+                        <Route path="simulation" element={<StartupMultiverse />} />
                         <Route path="founder-copilot" element={<FounderCopilot />} />
                         <Route path="pitch-room" element={<HoloPitchRoom />} />
                         <Route path="genome" element={<StartupGenome />} />
+                        <Route path="pitch-analysis" element={<PitchAnalysisResults />} />
                     </Route>
 
                     {/* COLLAB MODULE */}
@@ -149,7 +155,8 @@ const App: React.FC = () => {
                         <Route path="post" element={<CollabPostProject />} />
                         <Route path="project/:id" element={<CollabProjectDetail />} />
                         <Route path="neural-match" element={<NeuralTalentMatch />} />
-                        <Route path="war-room" element={<ProjectWarRoom />} />
+                        <Route path="war-room" element={<ProjectWarRoom3D />} />
+                        <Route path="war-room-legacy" element={<ProjectWarRoom />} />
                         <Route path="assessment" element={<WorkDNA />} />
                         <Route path="skill-evolution" element={<SkillEvolution />} />
                         <Route path="board/:id" element={<ProjectBoard />} />
@@ -157,12 +164,13 @@ const App: React.FC = () => {
 
                     {/* SKILLSWAP MODULE */}
                     <Route path="/skillswap" element={
-                        <PrivateRoute allowedRoles={['student', 'admin']}>
+                        <PrivateRoute allowedRoles={['student', 'teen', 'company', 'founder', 'admin']}>
                             <SkillSwapLayout />
                         </PrivateRoute>
                     }>
                         <Route index element={<StudentDashboard />} />
                         <Route path="dashboard" element={<StudentDashboard />} />
+                        <Route path="company-portal" element={<CompanyDashboard />} />
                         <Route path="projects" element={<SkillSwapProjects />} />
                         <Route path="consent" element={<SkillSwapConsent />} />
                         <Route path="assessment" element={<AssessmentWizard />} />

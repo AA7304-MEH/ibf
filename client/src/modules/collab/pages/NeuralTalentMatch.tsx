@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SparklesIcon, PuzzlePieceIcon, UserIcon, ArrowTopRightOnSquareIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, Sphere, Line, Text, PerspectiveCamera, OrbitControls, Environment, ContactShadows } from '@react-three/drei';
+import * as THREE from 'three';
 
 interface Candidate {
     id: string;
@@ -36,7 +39,7 @@ const candidates: Candidate[] = [
         color: 'bg-green-100 text-green-800',
         borderColor: 'border-green-400',
         bgInfo: 'bg-green-100 text-green-600',
-        position: { bottom: '20%', left: '50%' }
+        position: { top: '0', left: '0' } // Positions will be 3D [x, y, z] in the component
     },
     {
         id: 'alex',
@@ -52,7 +55,7 @@ const candidates: Candidate[] = [
         color: 'bg-blue-100 text-blue-800',
         borderColor: 'border-blue-200',
         bgInfo: 'bg-blue-100 text-blue-600',
-        position: { top: '30%', left: '20%' }
+        position: { top: '0', left: '0' }
     },
     {
         id: 'sarah',
@@ -69,9 +72,58 @@ const candidates: Candidate[] = [
         color: 'bg-purple-100 text-purple-800',
         borderColor: 'border-purple-200',
         bgInfo: 'bg-purple-100 text-purple-600',
-        position: { top: '40%', right: '20%', left: 'auto' } // Handle right pos manually
+        position: { top: '0', left: '0' }
     }
 ];
+
+// --- 3D Components ---
+
+const TalentNode = ({
+    candidate,
+    position,
+    isSelected,
+    onClick
+}: {
+    candidate: Candidate,
+    position: [number, number, number],
+    isSelected: boolean,
+    onClick: () => void
+}) => {
+    return (
+        <group position={position}>
+            <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.5}>
+                <Sphere args={[0.6, 32, 32]} onClick={(e) => { e.stopPropagation(); onClick(); }}>
+                    <meshStandardMaterial
+                        color={isSelected ? "#4f46e5" : "#cbd5e1"}
+                        emissive={isSelected ? "#4f46e5" : "#000000"}
+                        emissiveIntensity={0.5}
+                        roughness={0.2}
+                        metalness={0.8}
+                    />
+                </Sphere>
+            </Float>
+            <Text
+                position={[0, 1.2, 0]}
+                fontSize={0.25}
+                color={isSelected ? "#4f46e5" : "#64748b"}
+                font="/fonts/Inter-Bold.woff" // Assuming font exists or fallback
+                anchorX="center"
+                anchorY="middle"
+            >
+                {candidate.name.split(' ')[0]}
+            </Text>
+            <Text
+                position={[0, -1.2, 0]}
+                fontSize={0.15}
+                color="#94a3b8"
+                anchorX="center"
+                anchorY="middle"
+            >
+                {candidate.matchScore}%
+            </Text>
+        </group>
+    );
+};
 
 const NeuralTalentMatch: React.FC = () => {
     const [selectedCandId, setSelectedCandId] = useState<string>('liam');
@@ -80,75 +132,75 @@ const NeuralTalentMatch: React.FC = () => {
     const selectedCand = candidates.find(c => c.id === selectedCandId) || candidates[0];
 
     const handleInvite = () => {
-        if (!invitedIds.includes(selectedCandId)) {
-            setInvitedIds([...invitedIds, selectedCandId]);
+        if (!invitedIds.includes(selectedCand.id)) {
+            setInvitedIds([...invitedIds, selectedCand.id]);
         }
     };
 
+    // 3D Positions for candidates
+    const positions = React.useMemo<Record<string, [number, number, number]>>(() => ({
+        liam: [0, -3, 0],
+        alex: [-4, 2, -2],
+        sarah: [4, 2, -2]
+    }), []);
+
     return (
-        <div className="min-h-screen bg-gray-50 text-gray-900 p-8 font-sans">
-            <header className="mb-12">
-                <h1 className="text-3xl font-bold text-gray-900">Neural Talent Matching</h1>
-                <p className="text-gray-500">AI-driven compatibility scoring based on cognitive architecture.</p>
+        <div className="min-h-screen bg-slate-50 text-slate-900 p-8 font-sans">
+            <header className="mb-12 flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Neural Talent Matching</h1>
+                    <p className="text-slate-500">AI-driven compatibility scoring based on cognitive architecture.</p>
+                </div>
+                <div className="bg-white px-4 py-2 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
+                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Neural Web Active</span>
+                </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* 3D Graph Visualization */}
-                <div className="lg:col-span-2 bg-white rounded-2xl shadow-xl border border-gray-200 h-[600px] relative overflow-hidden flex items-center justify-center">
-                    <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] opacity-50"></div>
+                <div className="lg:col-span-2 bg-slate-900 rounded-3xl shadow-2xl h-[600px] relative overflow-hidden">
+                    <Canvas shadows>
+                        <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={50} />
+                        <OrbitControls enablePan={false} maxDistance={15} minDistance={5} />
+                        <ambientLight intensity={0.5} />
+                        <pointLight position={[10, 10, 10]} intensity={1} />
+                        <Environment preset="city" />
 
-                    {/* Central Node (User) */}
-                    <div className="relative z-10 w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200 ring-4 ring-white">
-                        YOU
+                        {/* Central Node */}
+                        <Float speed={2} rotationIntensity={1} floatIntensity={1}>
+                            <Sphere args={[0.8, 32, 32]} onClick={() => setSelectedCandId('')}>
+                                <meshStandardMaterial color="#4f46e5" emissive="#4f46e5" emissiveIntensity={0.2} roughness={0} metalness={1} />
+                            </Sphere>
+                            <Text position={[0, 1.5, 0]} fontSize={0.3} color="white" font="/fonts/Inter-Bold.woff">YOU</Text>
+                        </Float>
+
+                        {/* Candidate Nodes */}
+                        {candidates.map((cand) => (
+                            <React.Fragment key={cand.id}>
+                                <TalentNode
+                                    candidate={cand}
+                                    position={positions[cand.id]}
+                                    isSelected={selectedCandId === cand.id}
+                                    onClick={() => setSelectedCandId(cand.id)}
+                                />
+                                {/* Neural Connection Line */}
+                                <Line
+                                    points={[[0, 0, 0], positions[cand.id]]}
+                                    color={selectedCandId === cand.id ? "#4f46e5" : "#334155"}
+                                    lineWidth={selectedCandId === cand.id ? 2 : 1}
+                                    transparent
+                                    opacity={selectedCandId === cand.id ? 0.8 : 0.3}
+                                />
+                            </React.Fragment>
+                        ))}
+
+                        <ContactShadows position={[0, -4.5, 0]} opacity={0.4} scale={20} blur={2.5} far={4.5} />
+                    </Canvas>
+
+                    <div className="absolute bottom-6 left-6 text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em] pointer-events-none">
+                        Spatial Engine: Three.js • Interaction: Orbit
                     </div>
-
-                    {/* Connection Lines (SVG) */}
-                    <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                        {/* Dynamic lines based on candidates could be added here, for now keeping static-ish aesthetic */}
-                        <motion.line
-                            x1="50%" y1="50%" x2="20%" y2="30%"
-                            stroke={selectedCandId === 'alex' ? '#3B82F6' : '#E5E7EB'}
-                            strokeWidth={selectedCandId === 'alex' ? "3" : "2"}
-                            strokeDasharray={selectedCandId === 'alex' ? "0" : "5,5"}
-                            animate={selectedCandId === 'alex' ? { strokeDashoffset: 0 } : { strokeDashoffset: [0, -10] }}
-                            transition={{ duration: 1 }}
-                        />
-                        <motion.line
-                            x1="50%" y1="50%" x2="80%" y2="40%"
-                            stroke={selectedCandId === 'sarah' ? '#9333EA' : '#E5E7EB'}
-                            strokeWidth={selectedCandId === 'sarah' ? "3" : "2"}
-                            strokeDasharray={selectedCandId === 'sarah' ? "0" : "5,5"}
-                        />
-                        <motion.line
-                            x1="50%" y1="50%" x2="50%" y2="80%"
-                            stroke={selectedCandId === 'liam' ? '#22C55E' : '#E5E7EB'}
-                            strokeWidth={selectedCandId === 'liam' ? "4" : "2"}
-                        />
-                    </svg>
-
-                    {/* Match Nodes */}
-                    {candidates.map((cand) => (
-                        <div
-                            key={cand.id}
-                            className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 ${selectedCandId === cand.id ? 'scale-110 z-20' : 'scale-100 z-10 hover:scale-105'}`}
-                            style={{
-                                top: cand.position.top,
-                                left: cand.position.left === 'auto' ? undefined : cand.position.left,
-                                right: cand.position.right,
-                                bottom: cand.position.bottom
-                            }}
-                            onClick={() => setSelectedCandId(cand.id)}
-                        >
-                            <div className={`w-20 h-20 bg-white border-4 ${cand.borderColor} rounded-full flex items-center justify-center text-sm font-bold shadow-md ${selectedCandId === cand.id ? 'shadow-xl ring-2 ring-offset-2 ring-indigo-500' : ''}`}>
-                                {cand.name.split(' ')[0]}
-                            </div>
-                            <div className={`mt-2 text-center`}>
-                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${cand.color}`}>
-                                    {cand.matchScore}% {cand.matchScore > 90 ? 'SYNERGY' : 'Match'}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
                 </div>
 
                 {/* Match Details */}
@@ -196,8 +248,8 @@ const NeuralTalentMatch: React.FC = () => {
                                 <button
                                     onClick={handleInvite}
                                     className={`flex-1 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${invitedIds.includes(selectedCand.id)
-                                            ? 'bg-green-100 text-green-700 cursor-default'
-                                            : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg'
+                                        ? 'bg-green-100 text-green-700 cursor-default'
+                                        : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-md hover:shadow-lg'
                                         }`}
                                 >
                                     {invitedIds.includes(selectedCand.id) ? (

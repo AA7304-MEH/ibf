@@ -1,7 +1,7 @@
 import express from 'express';
 import { protect, authorize } from '../middleware/auth';
 import { moduleAuth } from '../middleware/moduleAuth';
-import { getStartups, getStartupById, createStartup, seedIncubator, getFounderCopilotAdvice } from '../controllers/incubator.controller';
+import { getStartups, getStartupById, createStartup, seedIncubator, getFounderCopilotAdvice, reviewPitchDeck, generateLegalDoc, getGenomeAnalysis, runGenomeAnalysis } from '../controllers/incubator.controller';
 
 const router = express.Router();
 
@@ -20,5 +20,11 @@ router.post('/apply', protect, authorize('founder'), moduleAuth('incubator'), cr
 
 // AI Founder Copilot
 router.post('/copilot', protect, authorize('founder'), moduleAuth('incubator'), getFounderCopilotAdvice);
+router.post('/copilot/review-deck', protect, authorize('founder'), moduleAuth('incubator'), reviewPitchDeck);
+router.post('/copilot/generate-doc', protect, authorize('founder'), moduleAuth('incubator'), generateLegalDoc);
+
+// Startup Genome
+router.get('/startups/:id/genome', protect, moduleAuth('incubator'), getGenomeAnalysis);
+router.post('/startups/:id/genome/run', protect, authorize('founder'), moduleAuth('incubator'), runGenomeAnalysis);
 
 export default router;

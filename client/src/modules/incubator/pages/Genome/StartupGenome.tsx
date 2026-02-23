@@ -1,8 +1,50 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { HeartIcon, BeakerIcon, ScaleIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, BeakerIcon, ScaleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 const StartupGenome: React.FC = () => {
+    const [genome, setGenome] = React.useState<any>(null);
+    const [loading, setLoading] = React.useState(true);
+    const [isSequencing, setIsSequencing] = React.useState(false);
+
+    const fetchGenome = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/incubator/startups/startup_001/genome', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            setGenome(data);
+        } catch (err) {
+            console.error('Genome fetch failed', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const runAnalysis = async () => {
+        setIsSequencing(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/incubator/startups/startup_001/genome/run', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            setGenome(data);
+        } catch (err) {
+            console.error('Genome run failed', err);
+        } finally {
+            setTimeout(() => setIsSequencing(false), 2000); // Animation duration
+        }
+    };
+
+    React.useEffect(() => {
+        fetchGenome();
+    }, []);
+
+    const score = genome?.marketFitScore || 94;
+
     return (
         <div className="min-h-screen bg-gray-50 text-gray-900 p-8">
             <header className="mb-12 flex justify-between items-center">
@@ -11,11 +53,21 @@ const StartupGenome: React.FC = () => {
                         <BeakerIcon className="w-8 h-8 mr-3 text-purple-600" />
                         Genome Sequencer
                     </h1>
-                    <p className="text-gray-500 mt-2">Real-time health sequencing against 10,000 successful matches.</p>
+                    <p className="text-gray-500 mt-2">Real-time health sequencing against professional benchmarks.</p>
                 </div>
-                <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm flex items-center">
-                    <div className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse" />
-                    <span className="font-bold text-gray-700">Health Score: 94/100</span>
+                <div className="flex gap-4">
+                    <button
+                        onClick={runAnalysis}
+                        disabled={isSequencing}
+                        className="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-purple-700 transition-colors disabled:opacity-50"
+                    >
+                        <ArrowPathIcon className={`w-5 h-5 ${isSequencing ? 'animate-spin' : ''}`} />
+                        {isSequencing ? 'Sequencing...' : 'Run Analysis'}
+                    </button>
+                    <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm flex items-center">
+                        <div className={`w-3 h-3 rounded-full mr-2 ${score > 80 ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'}`} />
+                        <span className="font-bold text-gray-700">Health Score: {score}/100</span>
+                    </div>
                 </div>
             </header>
 
@@ -38,16 +90,16 @@ const StartupGenome: React.FC = () => {
 
                     <div className="mt-8 flex space-x-8 text-center">
                         <div>
-                            <p className="text-2xl font-bold text-gray-900">Top 1%</p>
-                            <p className="text-xs text-gray-500">Technical Velocity</p>
+                            <p className="text-2xl font-bold text-gray-900">{genome?.marketFitScore || 70}%</p>
+                            <p className="text-xs text-gray-500">Market Fit</p>
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-gray-900">Top 15%</p>
-                            <p className="text-xs text-gray-500">Market Traction</p>
+                            <p className="text-2xl font-bold text-gray-900">{genome?.teamStrengthScore || 65}%</p>
+                            <p className="text-xs text-gray-500">Team Strength</p>
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-red-500">Bottom 40%</p>
-                            <p className="text-xs text-gray-500">Customer Retention</p>
+                            <p className="text-2xl font-bold text-gray-900">{genome?.tractionScore || 40}%</p>
+                            <p className="text-xs text-gray-500">Traction</p>
                         </div>
                     </div>
                 </div>

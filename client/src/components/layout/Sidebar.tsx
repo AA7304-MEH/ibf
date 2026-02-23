@@ -105,7 +105,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
                     sections.push({
                         title: 'Parent Ecosystem',
                         items: [
-                            { name: 'Guardian Dashboard', path: '/parent/dashboard', icon: ShieldCheckIcon },
+                            { name: 'Guardian Dashboard', path: '/skillswap/parent-portal', icon: ShieldCheckIcon },
                             { name: 'Child Insights', path: '/parent/insight', icon: ChartBarIcon },
                         ]
                     });
@@ -116,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
                     sections.push({
                         title: 'Company Portal',
                         items: [
-                            { name: 'Post Internship', path: '/internships/post', icon: BriefcaseIcon },
+                            { name: 'CSR Command Center', path: '/skillswap/company-portal', icon: BuildingLibraryIcon },
                             { name: 'Manage Applicants', path: '/internships/manage', icon: UserGroupIcon },
                         ]
                     });

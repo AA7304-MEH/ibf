@@ -10,6 +10,7 @@ import {
     getMyActiveInternships,
     getApplicantsList,
     updateApplicantStatus,
+    getCSRImpact,
     seedSkillSwap
 } from '../controllers/internship.controller';
 
@@ -27,6 +28,7 @@ router.post('/internships', protect, authorize('company'), moduleAuth('skillswap
 router.get('/my-listings', protect, authorize('company'), moduleAuth('skillswap'), getMyListings);
 router.get('/applicants', protect, authorize('company'), moduleAuth('skillswap'), getApplicantsList);
 router.patch('/applicants/:id', protect, authorize('company'), moduleAuth('skillswap'), updateApplicantStatus);
+router.get('/csr-impact', protect, authorize('company'), moduleAuth('skillswap'), getCSRImpact);
 
 // Teen Operations
 router.post('/internships/:id/apply', protect, authorize('teen', 'student'), moduleAuth('skillswap'), applyForInternship);

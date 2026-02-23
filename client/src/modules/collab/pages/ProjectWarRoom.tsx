@@ -1,13 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ClockIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, PaperAirplaneIcon, UserGroupIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { io, Socket } from 'socket.io-client';
+import api from '../../../services/api';
 
 const ProjectWarRoom: React.FC = () => {
     const projectId = "alpha-protocol"; // Scalable: get from URL params
     const [socket, setSocket] = useState<Socket | null>(null);
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState('');
+    const [applicants, setApplicants] = useState<any[]>([]);
+    const [hiredTalent, setHiredTalent] = useState<any>(null);
+    const [activeView, setActiveView] = useState<'collab' | 'applicants'>('collab');
+
     const [blocks, setBlocks] = useState([
         { id: 'auth', title: 'AuthService', x: 100, y: 100, color: 'blue' },
         { id: 'payment', title: 'PaymentGateway', x: 400, y: 300, color: 'purple' }
@@ -29,10 +34,32 @@ const ProjectWarRoom: React.FC = () => {
             setMessages(prev => [...prev, msg]);
         });
 
+        const fetchApplicants = async () => {
+            try {
+                const res = await api.get(`/collab/projects/${projectId}/applications`);
+                setApplicants(res.data);
+            } catch (err) {
+                console.error('Failed to fetch applicants');
+            }
+        };
+
+        fetchApplicants();
         return () => {
             s.disconnect();
         };
     }, []);
+
+    const handleHire = async (appId: string) => {
+        try {
+            const res = await api.post('/collab/projects/hire', { applicationId: appId });
+            setHiredTalent(res.data.project.hiredTalentId);
+            setApplicants(prev => prev.map(a =>
+                a._id === appId ? { ...a, status: 'accepted' } : { ...a, status: 'rejected' }
+            ));
+        } catch (err) {
+            alert('Hiring failed');
+        }
+    };
 
     const handleDrag = (id: string, info: any) => {
         if (!socket) return;
@@ -89,44 +116,102 @@ const ProjectWarRoom: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-140px)]">
                 {/* Visual Code Architecture (Left) */}
                 <div className="lg:col-span-3 bg-black rounded-xl border border-gray-800 relative overflow-hidden group">
-                    <div className="absolute top-4 left-4 z-10 bg-gray-900/80 px-3 py-1 rounded text-[10px] text-green-400 border border-green-900 font-bold uppercase tracking-widest">
-                        Neural Architecture Spatializer v1.0
+                    <div className="absolute top-4 left-4 z-10 flex gap-4">
+                        <button
+                            onClick={() => setActiveView('collab')}
+                            className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest border transition ${activeView === 'collab' ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-gray-900/80 text-gray-500 border-gray-800'}`}
+                        >
+                            Neural Spatializer
+                        </button>
+                        <button
+                            onClick={() => setActiveView('applicants')}
+                            className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest border transition ${activeView === 'applicants' ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-gray-900/80 text-gray-500 border-gray-800'}`}
+                        >
+                            Applicant Console ({applicants.length})
+                        </button>
                     </div>
 
-                    <div className="absolute inset-0 p-8">
-                        {blocks.map(block => (
-                            <motion.div
-                                key={block.id}
-                                drag
-                                onDrag={(e, info) => handleDrag(block.id, info)}
-                                style={{ x: block.x, y: block.y }}
-                                className={`absolute w-56 h-36 bg-${block.color}-900/20 border border-${block.color}-500/50 rounded-xl p-4 cursor-move backdrop-blur-md shadow-2xl transition-colors hover:bg-${block.color}-900/30`}
-                            >
-                                <div className="flex justify-between items-start mb-3">
-                                    <p className={`text-${block.color}-400 text-xs font-bold uppercase`}>{block.title}</p>
-                                    <div className={`w-2 h-2 rounded-full bg-${block.color}-400 animate-pulse`} />
-                                </div>
-                                <div className="space-y-2">
-                                    <div className={`h-1.5 w-full bg-${block.color}-500/20 rounded-full overflow-hidden`}>
-                                        <div className={`h-full bg-${block.color}-500/40 w-3/4`} />
-                                    </div>
-                                    <div className={`h-1 w-1/2 bg-${block.color}-500/20 rounded-full`} />
-                                    <div className={`h-1 w-2/3 bg-${block.color}-500/20 rounded-full`} />
-                                </div>
-                                <div className="mt-4 flex justify-between items-center opacity-40">
-                                    <div className="text-[8px]">LOG: OK</div>
-                                    <div className="text-[8px]">POS: {Math.round(block.x)}, {Math.round(block.y)}</div>
-                                </div>
-                            </motion.div>
-                        ))}
+                    <div className="absolute inset-0 p-8 flex items-center justify-center">
+                        {activeView === 'collab' ? (
+                            <>
+                                {blocks.map(block => (
+                                    <motion.div
+                                        key={block.id}
+                                        drag
+                                        onDrag={(e, info) => handleDrag(block.id, info)}
+                                        style={{ x: block.x, y: block.y }}
+                                        className={`absolute w-56 h-36 bg-${block.color}-900/20 border border-${block.color}-500/50 rounded-xl p-4 cursor-move backdrop-blur-md shadow-2xl transition-colors hover:bg-${block.color}-900/30`}
+                                    >
+                                        <div className="flex justify-between items-start mb-3">
+                                            <p className={`text-${block.color}-400 text-xs font-bold uppercase`}>{block.title}</p>
+                                            <div className={`w-2 h-2 rounded-full bg-${block.color}-400 animate-pulse`} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className={`h-1.5 w-full bg-${block.color}-500/20 rounded-full overflow-hidden`}>
+                                                <div className={`h-full bg-${block.color}-500/40 w-3/4`} />
+                                            </div>
+                                            <div className={`h-1 w-1/2 bg-${block.color}-500/20 rounded-full`} />
+                                            <div className={`h-1 w-2/3 bg-${block.color}-500/20 rounded-full`} />
+                                        </div>
+                                        <div className="mt-4 flex justify-between items-center opacity-40">
+                                            <div className="text-[8px]">LOG: OK</div>
+                                            <div className="text-[8px]">POS: {Math.round(block.x)}, {Math.round(block.y)}</div>
+                                        </div>
+                                    </motion.div>
+                                ))}
 
-                        {/* Connection Visualizer */}
-                        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
-                            <motion.path
-                                d={`M ${blocks[0].x + 112} ${blocks[0].y + 72} Q ${(blocks[0].x + blocks[1].x) / 2 + 100} ${(blocks[0].y + blocks[1].y) / 2} ${blocks[1].x + 112} ${blocks[1].y + 72}`}
-                                stroke="white" strokeWidth="1" fill="none" strokeDasharray="5,5"
-                            />
-                        </svg>
+                                {/* Connection Visualizer */}
+                                <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
+                                    <motion.path
+                                        d={`M ${blocks[0].x + 112} ${blocks[0].y + 72} Q ${(blocks[0].x + blocks[1].x) / 2 + 100} ${(blocks[0].y + blocks[1].y) / 2} ${blocks[1].x + 112} ${blocks[1].y + 72}`}
+                                        stroke="white" strokeWidth="1" fill="none" strokeDasharray="5,5"
+                                    />
+                                </svg>
+                            </>
+                        ) : (
+                            <div className="w-full h-full mt-10 overflow-y-auto pr-4 space-y-4">
+                                {applicants.map((app) => (
+                                    <div key={app._id} className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 flex justify-between items-center group hover:bg-gray-800 transition">
+                                        <div className="flex gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-xl">
+                                                {app.applicant?.firstName?.[0] || 'T'}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-indigo-400">{app.applicant?.firstName} {app.applicant?.lastName || 'Talent'}</h4>
+                                                <p className="text-xs text-gray-500 uppercase tracking-widest">{app.applicant?.headline || 'Expert Contributor'}</p>
+                                                <p className="text-sm text-gray-300 mt-2 max-w-xl line-clamp-2 italic">"{app.coverLetter}"</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-lg font-bold text-white">${app.proposedRate}/hr</p>
+                                            <p className="text-xs text-gray-500 mb-4">{app.estimatedDuration}</p>
+                                            {app.status === 'accepted' ? (
+                                                <span className="flex items-center gap-2 text-green-500 font-bold uppercase text-xs">
+                                                    <CheckCircleIcon className="w-5 h-5" /> Hired
+                                                </span>
+                                            ) : app.status === 'rejected' ? (
+                                                <span className="flex items-center gap-2 text-red-500 font-bold uppercase text-xs">
+                                                    <XCircleIcon className="w-5 h-5" /> Rejected
+                                                </span>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleHire(app._id)}
+                                                    className="px-6 py-2 bg-indigo-600 rounded-lg font-bold hover:bg-indigo-700 transition"
+                                                >
+                                                    Accept & Hire
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                                {applicants.length === 0 && (
+                                    <div className="text-center py-20 text-gray-600">
+                                        <UserGroupIcon className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                                        <p className="uppercase tracking-[0.3em]">No frequency matches found yet</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
 

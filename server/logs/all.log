@@ -2,3 +2,14 @@
 2026-02-21 21:16:33:1633 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
 2026-02-21 21:19:54:1954 [31merror[39m: [31mCRITICAL: MongoDB connection failed: connect ECONNREFUSED 127.0.0.1:27017[39m
 2026-02-21 21:20:04:204 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-22 11:44:06:446 [31merror[39m: [31mCRITICAL: MongoDB connection failed: connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-22 11:44:16:4416 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-22 11:46:26:4626 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017[39m
+2026-02-22 11:46:57:4657 [31merror[39m: [31mCRITICAL: MongoDB connection failed: connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-22 11:47:07:477 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-22 11:48:08:488 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017[39m
+2026-02-22 11:48:38:4838 [31merror[39m: [31mCRITICAL: MongoDB connection failed: connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-22 11:48:49:4849 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-22 22:01:04:14 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017[39m
+2026-02-22 22:01:35:135 [31merror[39m: [31mCRITICAL: MongoDB connection failed: connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-22 22:01:45:145 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m

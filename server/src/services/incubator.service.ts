@@ -1,4 +1,5 @@
 import Startup from '../models/Startup';
+import { logger } from '../utils/logger';
 
 export class IncubatorService {
     /**
@@ -19,34 +20,53 @@ export class IncubatorService {
                 Tagline: ${startup.tagline}
             `;
 
-            // Simulation of AI response logic
-            // In a real production environment, this would call OpenAI/Anthropic
+            // Production AI Integration (Placeholder for OpenAI node client)
+            // if (process.env.OPENAI_API_KEY) {
+            //   const response = await openai.chat.completions.create({ ... });
+            //   return response.choices[0].message.content;
+            // }
 
-            const lowResAdvice = this.generateMockAdvice(startup, prompt);
-            return lowResAdvice;
+            return this.generateMockAdvice(startup, prompt);
 
         } catch (error) {
-            console.error('Founder Copilot Error:', error);
+            logger.error('Founder Copilot Error:', error);
             return "I'm having trouble connecting to my brain right now. Please try again in a moment.";
         }
     }
 
+    /**
+     * AI Analysis of Pitch Deck (PDF extraction placeholder)
+     */
+    async reviewPitchDeck(startupId: string, pdfBuffer: Buffer): Promise<any> {
+        logger.info(`Analyzing pitch deck for startup ${startupId}`);
+        // In real use: extract text using pdf-parse, then send to GPT-4 for feedback
+        return {
+            strengths: ["Clear problem statement", "Strong team background"],
+            weaknesses: ["Market size calculation needs more detail", "Competitive landscape is sparse"],
+            overallScore: 78,
+            recommendation: "Focus more on the traction you've gained in the last 3 months."
+        };
+    }
+
+    /**
+     * Generate Term Sheet Summary or Founder Agreements
+     */
+    async generateLegalDocument(type: 'SAFE' | 'FounderAgreement' | 'TermSheet', startupData: any): Promise<string> {
+        // AI-powered document generation logic
+        return `Draft for ${type} for ${startupData.name}. 
+        This is a simulated AI-generated document summary based on current standard templates.
+        [LEGAL DISCLAIMER: Consult with an attorney before signing.]`;
+    }
+
     private generateMockAdvice(startup: any, prompt: string): string {
         const p = prompt.toLowerCase();
-
         if (p.includes('market') || p.includes('competition')) {
             return `For ${startup.name} in the ${startup.industry} space, focus on your unique ${startup.tagline.toLowerCase()}. Research competitors in the ${startup.stage} phase and identify gaps in their ${startup.description.split(' ')[0]} implementation.`;
         }
-
         if (p.includes('fund') || p.includes('pitch')) {
             return `Since you are at the ${startup.stage} stage, emphasize your vision for ${startup.industry}. Investors want to see traction in ${startup.description.split('. ')[0]}. Refine your pitch to highlight how you're solving a specific problem.`;
         }
-
-        if (p.includes('hiring') || p.includes('team')) {
-            return `At the ${startup.stage} stage, prioritize cultural fit. Look for individuals who believe in "${startup.tagline}". You need generalists who can handle the ${startup.industry} challenges.`;
-        }
-
-        return `That's an interesting question about ${startup.name}. Considering you're in the ${startup.industry} sector, I recommend looking at how other ${startup.stage} startups handle similar challenges. Focus on your core value proposition: ${startup.description}`;
+        return `That's an interesting question about ${startup.name}. Considering you're in the ${startup.industry} sector, I recommend looking at how other ${startup.stage} startups handle similar challenges.`;
     }
 }
 

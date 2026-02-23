@@ -13,8 +13,13 @@ import {
     DocumentDuplicateIcon,
     ShareIcon,
     XMarkIcon,
-    FireIcon
+    FireIcon,
+    ViewColumnsIcon,
+    CubeTransparentIcon
 } from '@heroicons/react/24/outline';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Float, PerspectiveCamera, OrbitControls, Environment, ContactShadows, Stars, MeshDistortMaterial, Text } from '@react-three/drei';
+import * as THREE from 'three';
 
 interface Badge {
     id: string;
@@ -41,6 +46,93 @@ interface Credential {
     earnedAt: Date;
 }
 
+// --- 3D Components for NFT Vault ---
+
+const HolographicCard = ({ badge, position }: { badge: Badge, position: [number, number, number] }) => {
+    const meshRef = useRef<THREE.Mesh>(null);
+
+    useFrame((state) => {
+        if (meshRef.current) {
+            meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5 + position[0]) * 0.2;
+            meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime + position[0]) * 0.1;
+        }
+    });
+
+    const rarityColor = badge.rarity === 'legendary' ? '#f59e0b' :
+        badge.rarity === 'epic' ? '#a855f7' :
+            badge.rarity === 'rare' ? '#3b82f6' : '#94a3b8';
+
+    return (
+        <group position={position}>
+            <Float speed={2} rotationIntensity={0.5} floatIntensity={0.5}>
+                <mesh ref={meshRef}>
+                    <boxGeometry args={[2.5, 3.5, 0.1]} />
+                    <MeshDistortMaterial
+                        color={badge.isOwned ? rarityColor : "#1e293b"}
+                        speed={2}
+                        distort={0.2}
+                        transparent
+                        opacity={0.8}
+                        metalness={0.9}
+                        roughness={0.1}
+                    />
+                </mesh>
+                <mesh position={[0, 0, 0.06]}>
+                    <planeGeometry args={[2.3, 3.3]} />
+                    <meshStandardMaterial color="#000000" transparent opacity={0.4} />
+                </mesh>
+                <Text
+                    position={[0, 0.5, 0.1]}
+                    fontSize={1}
+                    color="white"
+                    anchorX="center"
+                    anchorY="middle"
+                >
+                    {badge.icon}
+                </Text>
+                <Text
+                    position={[0, -0.8, 0.1]}
+                    fontSize={0.2}
+                    color="white"
+                    maxWidth={2}
+                    textAlign="center"
+                    anchorX="center"
+                    anchorY="middle"
+                >
+                    {badge.name.toUpperCase()}
+                </Text>
+                <Text
+                    position={[0, -1.3, 0.1]}
+                    fontSize={0.12}
+                    color={rarityColor}
+                    anchorX="center"
+                    anchorY="middle"
+                >
+                    {badge.rarity.toUpperCase()}
+                </Text>
+            </Float>
+        </group>
+    );
+};
+
+const SkillVault3D = ({ badges }: { badges: Badge[] }) => {
+    return (
+        <group>
+            {badges.map((badge, i) => {
+                const x = (i % 3 - 1) * 4;
+                const y = (Math.floor(i / 3) === 0 ? 2 : -2);
+                return (
+                    <HolographicCard
+                        key={badge.id}
+                        badge={badge}
+                        position={[x, y, 0]}
+                    />
+                );
+            })}
+        </group>
+    );
+};
+
 const SkillWallet: React.FC = () => {
     const [badges, setBadges] = useState<Badge[]>([]);
     const [credentials, setCredentials] = useState<Credential[]>([]);
@@ -50,6 +142,7 @@ const SkillWallet: React.FC = () => {
     const [totalXP, setTotalXP] = useState(0);
     const [claimingBadge, setClaimingBadge] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
 
     const rarityColors: Record<string, string> = {
         common: 'from-gray-400 to-gray-500',
@@ -146,6 +239,24 @@ const SkillWallet: React.FC = () => {
                                 <p className="text-white/70">Your verified credentials & NFT badges</p>
                             </div>
                         </div>
+                        <div className="flex items-center gap-3">
+                            <div className="flex bg-black/20 p-1 rounded-xl">
+                                <button
+                                    onClick={() => setViewMode('2d')}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === '2d' ? 'bg-white text-indigo-600 shadow-lg' : 'text-white/50 hover:text-white'}`}
+                                >
+                                    <ViewColumnsIcon className="w-4 h-4 inline-block mr-1" />
+                                    2D LIST
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('3d')}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === '3d' ? 'bg-white text-indigo-600 shadow-lg' : 'text-white/50 hover:text-white'}`}
+                                >
+                                    <CubeTransparentIcon className="w-4 h-4 inline-block mr-1" />
+                                    3D VAULT
+                                </button>
+                            </div>
+                        </div>
                         <div className="text-right">
                             <p className="text-sm text-white/70">Total Value</p>
                             <p className="text-3xl font-bold">{totalXP.toLocaleString()} XP</p>
@@ -181,47 +292,74 @@ const SkillWallet: React.FC = () => {
                     <SparklesIcon className="w-7 h-7 text-purple-400" />
                     NFT Badges
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    {badges.map((badge, idx) => (
-                        <motion.div
-                            key={badge.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: idx * 0.05 }}
-                            whileHover={{ scale: 1.05, y: -5 }}
-                            onClick={() => setSelectedBadge(badge)}
-                            className={`relative rounded-2xl p-4 cursor-pointer border ${badge.isOwned ? rarityBgColors[badge.rarity] : 'bg-gray-800/50 border-gray-700'
-                                } ${!badge.isOwned && 'opacity-60'}`}
-                        >
-                            {badge.isOwned && (
-                                <div className="absolute -top-2 -right-2">
-                                    <CheckBadgeIcon className="w-6 h-6 text-green-400" />
+
+                {viewMode === '3d' ? (
+                    <div className="bg-black/40 rounded-3xl h-[600px] relative overflow-hidden border border-white/5 shadow-2xl mb-8">
+                        <Canvas shadows>
+                            <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={50} />
+                            <OrbitControls enablePan={false} maxDistance={15} minDistance={5} />
+                            <ambientLight intensity={0.4} />
+                            <pointLight position={[10, 10, 10]} intensity={1.5} color="#4f46e5" />
+                            <pointLight position={[-10, -10, -10]} intensity={0.5} color="#a855f7" />
+                            <Environment preset="night" />
+                            <Stars speed={1} factor={4} saturation={0} fade />
+
+                            <SkillVault3D badges={badges} />
+
+                            <ContactShadows position={[0, -5, 0]} opacity={0.4} scale={20} blur={2.5} far={10} />
+                        </Canvas>
+                        <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full text-[10px] text-white/50 font-mono tracking-widest uppercase pointer-events-none">
+                            Vault Authentication: SECURE
+                        </div>
+                        <div className="absolute bottom-4 left-4 right-4 flex justify-center pointer-events-none">
+                            <p className="text-[10px] text-purple-400 font-bold uppercase tracking-[0.2em] bg-purple-900/20 px-4 py-1.5 rounded-full border border-purple-500/20">
+                                Drag to orbit vault • Holographic NFT synchronization active
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        {badges.map((badge, idx) => (
+                            <motion.div
+                                key={badge.id}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: idx * 0.05 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                                onClick={() => setSelectedBadge(badge)}
+                                className={`relative rounded-2xl p-4 cursor-pointer border ${badge.isOwned ? rarityBgColors[badge.rarity] : 'bg-gray-800/50 border-gray-700'
+                                    } ${!badge.isOwned && 'opacity-60'}`}
+                            >
+                                {badge.isOwned && (
+                                    <div className="absolute -top-2 -right-2">
+                                        <CheckBadgeIcon className="w-6 h-6 text-green-400" />
+                                    </div>
+                                )}
+                                <div className={`w-16 h-16 mx-auto rounded-xl bg-gradient-to-br ${rarityColors[badge.rarity]} flex items-center justify-center text-3xl mb-3`}>
+                                    {badge.icon}
                                 </div>
-                            )}
-                            <div className={`w-16 h-16 mx-auto rounded-xl bg-gradient-to-br ${rarityColors[badge.rarity]} flex items-center justify-center text-3xl mb-3`}>
-                                {badge.icon}
-                            </div>
-                            <p className="font-bold text-center text-sm">{badge.name}</p>
-                            <p className={`text-xs text-center mt-1 capitalize ${badge.rarity === 'legendary' ? 'text-amber-400' :
+                                <p className="font-bold text-center text-sm">{badge.name}</p>
+                                <p className={`text-xs text-center mt-1 capitalize ${badge.rarity === 'legendary' ? 'text-amber-400' :
                                     badge.rarity === 'epic' ? 'text-purple-400' :
                                         badge.rarity === 'rare' ? 'text-blue-400' : 'text-gray-400'
-                                }`}>
-                                {badge.rarity}
-                            </p>
-                            {!badge.isOwned && badge.progress !== undefined && (
-                                <div className="mt-2">
-                                    <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                                            style={{ width: `${badge.progress}%` }}
-                                        ></div>
+                                    }`}>
+                                    {badge.rarity}
+                                </p>
+                                {!badge.isOwned && badge.progress !== undefined && (
+                                    <div className="mt-2">
+                                        <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                                                style={{ width: `${badge.progress}%` }}
+                                            ></div>
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-1 text-center">{badge.progress}%</p>
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-1 text-center">{badge.progress}%</p>
-                                </div>
-                            )}
-                        </motion.div>
-                    ))}
-                </div>
+                                )}
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Credentials Section */}
@@ -352,8 +490,8 @@ const SkillWallet: React.FC = () => {
                                             onClick={() => handleClaimBadge(selectedBadge)}
                                             disabled={selectedBadge.progress !== 100 || claimingBadge === selectedBadge.id}
                                             className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 ${selectedBadge.progress === 100
-                                                    ? 'bg-green-600 hover:bg-green-700'
-                                                    : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                                ? 'bg-green-600 hover:bg-green-700'
+                                                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
                                                 }`}
                                         >
                                             {claimingBadge === selectedBadge.id ? (
@@ -444,13 +582,9 @@ const SkillWallet: React.FC = () => {
                                 </div>
 
                                 <div className="flex gap-3">
-                                    <button className="flex-1 py-3 bg-indigo-600 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-700">
+                                    <button className="w-full py-3 bg-indigo-600 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-700">
                                         <ShareIcon className="w-5 h-5" />
                                         Share
-                                    </button>
-                                    <button className="flex-1 py-3 bg-gray-700 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-600">
-                                        <ArrowUpIcon className="w-5 h-5" />
-                                        Upgrade
                                     </button>
                                 </div>
                             </div>

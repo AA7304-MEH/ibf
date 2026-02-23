@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 const AuthPage: React.FC = () => {
     const { login, register } = useAuth();
@@ -12,6 +13,7 @@ const AuthPage: React.FC = () => {
         searchParams.get('mode') === 'register' ? 'register' : 'login'
     );
     const [isLoading, setIsLoading] = useState(false);
+    const [mockInfo, setMockInfo] = useState<{ message: string; credentials?: string } | null>(null);
 
     const [formData, setFormData] = useState({
         email: '',
@@ -22,17 +24,30 @@ const AuthPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setMockInfo(null);
         try {
             if (mode === 'login') {
-                await login(formData.email, formData.password);
-                showToast(`Welcome back!`, 'success');
+                const response: any = await login(formData.email, formData.password);
+                if (response?.isMockMode) {
+                    showToast(`Logged in via Mock Mode!`, 'success');
+                } else {
+                    showToast(`Welcome back!`, 'success');
+                }
             } else {
                 await register(formData.email, formData.password, formData.role);
                 showToast(`Account created successfully!`, 'success');
             }
             navigate('/dashboard');
         } catch (err: any) {
-            showToast(err.response?.data?.message || 'Authentication failed', 'error');
+            const msg = err.response?.data?.message || 'Authentication failed';
+            showToast(msg, 'error');
+
+            if (err.response?.data?.isMockMode) {
+                setMockInfo({
+                    message: msg,
+                    credentials: err.response?.data?.availableCredentials
+                });
+            }
         } finally {
             setIsLoading(false);
         }
@@ -129,8 +144,24 @@ const AuthPage: React.FC = () => {
                                 {isLoading ? 'Processing...' : (mode === 'login' ? 'Sign in' : 'Create Account')}
                             </button>
                         </div>
+
+                        {mockInfo && (
+                            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                                <p className="text-xs text-amber-800 font-bold flex items-center gap-1">
+                                    <ExclamationTriangleIcon className="w-4 h-4" />
+                                    DATABASE OFFLINE (Mock Mode)
+                                </p>
+                                <p className="text-[10px] text-amber-700 mt-1">
+                                    Fallback credentials for local testing:
+                                </p>
+                                <code className="block mt-1 text-[10px] bg-amber-100 p-1 rounded font-mono text-amber-900 text-center">
+                                    {mockInfo.credentials}
+                                </code>
+                            </div>
+                        )}
                     </form>
                 </div>
+
             </div>
         </div>
     );
