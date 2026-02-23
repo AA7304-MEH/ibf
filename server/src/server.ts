@@ -53,11 +53,16 @@ const connectDB = async () => {
 
     if (isLocal) {
         try {
-            const mongod = await MongoMemoryServer.create();
+            logger.info('Starting MongoDB Memory Server (Local Dev Mode)...');
+            const mongod = await MongoMemoryServer.create({
+                instance: {
+                    dbName: 'skillbridge'
+                }
+            });
             uri = mongod.getUri();
-            logger.info('Using MongoDB Memory Server for local development');
+            logger.info(`MongoDB Memory Server started at: ${uri}`);
         } catch (err) {
-            logger.error('Failed to start MongoDB Memory Server, falling back to local port 27017');
+            logger.error('Failed to start MongoDB Memory Server, falling back to local port 27017:', err);
             uri = 'mongodb://127.0.0.1:27017/skillbridge';
         }
     }
@@ -66,9 +71,10 @@ const connectDB = async () => {
         logger.info('Connected to MongoDB');
         return m;
     }).catch(err => {
-        logger.error('CRITICAL: MongoDB connection failed:', err);
+        logger.error('CRITICAL: MongoDB connection failed (Server will run in limited MOCK MODE):', err);
         dbPromise = null;
-        throw err;
+        // Do not throw, allow server to start
+        return mongoose;
     });
 
     return dbPromise;

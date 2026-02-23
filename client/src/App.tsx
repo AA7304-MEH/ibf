@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
@@ -108,139 +108,141 @@ import LiveChat from './modules/skillswap/pages/LiveChat';
 
 const App: React.FC = () => {
     return (
-        <AuthProvider>
-            <AICopilot />
-            <ToastProvider>
-                <Routes>
-                    {/* Public Routes */}
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+        <BrowserRouter>
+            <AuthProvider>
+                <ToastProvider>
+                    <AICopilot />
+                    <Routes>
+                        {/* Public Routes */}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
 
-                    {/* Public Landing Pages */}
-                    <Route path="/incubator-landing" element={<IncubatorLanding />} />
-                    <Route path="/collab-landing" element={<CollabLanding />} />
+                        {/* Public Landing Pages */}
+                        <Route path="/incubator-landing" element={<IncubatorLanding />} />
+                        <Route path="/collab-landing" element={<CollabLanding />} />
 
-                    {/* SkillSwap Public Flow */}
-                    <Route path="/skillswap-public" element={<AgeGate />} />
-                    <Route path="/skillswap/register" element={<StudentRegistration />} />
+                        {/* SkillSwap Public Flow */}
+                        <Route path="/skillswap-public" element={<AgeGate />} />
+                        <Route path="/skillswap/register" element={<StudentRegistration />} />
 
-                    {/* INCUBATOR MODULE */}
-                    <Route path="/incubator" element={
-                        <PrivateRoute allowedRoles={['founder', 'admin']}>
-                            <IncubatorLayout />
-                        </PrivateRoute>
-                    }>
-                        <Route index element={<IncubatorDashboard />} />
-                        <Route path="dashboard" element={<IncubatorDashboard />} />
-                        <Route path="startups" element={<IncubatorStartups />} />
-                        <Route path="startups/:id" element={<IncubatorStartupDetail />} />
-                        <Route path="apply" element={<IncubatorApply />} />
-                        <Route path="multiverse" element={<MultiverseHQ />} />
-                        <Route path="simulation" element={<StartupMultiverse />} />
-                        <Route path="founder-copilot" element={<FounderCopilot />} />
-                        <Route path="pitch-room" element={<HoloPitchRoom />} />
-                        <Route path="genome" element={<StartupGenome />} />
-                        <Route path="pitch-analysis" element={<PitchAnalysisResults />} />
-                    </Route>
-
-                    {/* COLLAB MODULE */}
-                    <Route path="/collab" element={
-                        <PrivateRoute allowedRoles={['founder', 'talent', 'admin']}>
-                            <CollabLayout />
-                        </PrivateRoute>
-                    }>
-                        <Route index element={<CollabMarketplace />} />
-                        <Route path="market" element={<CollabMarketplace />} />
-                        <Route path="post" element={<CollabPostProject />} />
-                        <Route path="project/:id" element={<CollabProjectDetail />} />
-                        <Route path="neural-match" element={<NeuralTalentMatch />} />
-                        <Route path="war-room" element={<ProjectWarRoom3D />} />
-                        <Route path="war-room-legacy" element={<ProjectWarRoom />} />
-                        <Route path="assessment" element={<WorkDNA />} />
-                        <Route path="skill-evolution" element={<SkillEvolution />} />
-                        <Route path="board/:id" element={<ProjectBoard />} />
-                    </Route>
-
-                    {/* SKILLSWAP MODULE */}
-                    <Route path="/skillswap" element={
-                        <PrivateRoute allowedRoles={['student', 'teen', 'company', 'founder', 'admin']}>
-                            <SkillSwapLayout />
-                        </PrivateRoute>
-                    }>
-                        <Route index element={<StudentDashboard />} />
-                        <Route path="dashboard" element={<StudentDashboard />} />
-                        <Route path="company-portal" element={<CompanyDashboard />} />
-                        <Route path="projects" element={<SkillSwapProjects />} />
-                        <Route path="consent" element={<SkillSwapConsent />} />
-                        <Route path="assessment" element={<AssessmentWizard />} />
-                        <Route path="leaderboard" element={<Leaderboard />} />
-                        <Route path="wellbeing" element={<WellbeingDashboard />} />
-                        <Route path="parent-insight" element={<ParentalInsight />} />
-                        <Route path="ecosystem/brain" element={<EcosystemBrain />} />
-                        <Route path="ecosystem/symbiosis" element={<SymbiosisEngine />} />
-                        <Route path="metaverse/workspace" element={<DigitalTwinWorkspace />} />
-                        <Route path="metaverse/meeting" element={<HoloMeeting />} />
-                        <Route path="lms" element={<StudentDashboard />} />
-                        <Route path="learning/:moduleId/:lessonId" element={<LessonPlayer />} />
-                        <Route path="web3/wallet" element={<SkillWallet />} />
-                        <Route path="impact/global" element={<PlanetaryDashboard />} />
-                        <Route path="skill-wallet" element={<SkillWalletPage />} />
-                        <Route path="metaverse" element={<MetaverseHQ />} />
-                        <Route path="metaverse/room/:roomId" element={<MetaverseHQ />} />
-                        <Route path="parent-portal" element={<ParentDashboardNew />} />
-                        <Route path="global-impact" element={<GlobalImpactDashboard />} />
-                        <Route path="settings" element={<NeuroSettingsPage />} />
-                        <Route path="chat" element={<LiveChat />} />
-                    </Route>
-
-                    {/* GENERAL DASHBOARD / ADMIN */}
-                    <Route path="/" element={<Layout />}>
-                        <Route path="dashboard" element={
-                            <PrivateRoute>
-                                <UserDashboard />
+                        {/* INCUBATOR MODULE */}
+                        <Route path="/incubator" element={
+                            <PrivateRoute allowedRoles={['founder', 'admin']}>
+                                <IncubatorLayout />
                             </PrivateRoute>
-                        } />
-                        <Route path="admin" element={
-                            <PrivateRoute allowedRoles={['admin']}>
-                                <AdminDashboard />
-                            </PrivateRoute>
-                        } />
-                        <Route path="admin/users" element={
-                            <PrivateRoute allowedRoles={['admin']}>
-                                <UserManagement />
-                            </PrivateRoute>
-                        } />
-                        <Route path="admin/moderation" element={
-                            <PrivateRoute allowedRoles={['admin']}>
-                                <ContentModeration />
-                            </PrivateRoute>
-                        } />
-                        <Route path="admin/panel" element={
-                            <PrivateRoute allowedRoles={['admin']}>
-                                <AdminPanel />
-                            </PrivateRoute>
-                        } />
-                        <Route path="parent" element={
-                            <PrivateRoute>
-                                <ParentDashboard />
-                            </PrivateRoute>
-                        } />
-                        <Route path="settings/neuro" element={<PrivateRoute><NeuroSettings /></PrivateRoute>} />
-                        <Route path="settings/privacy" element={<PrivateRoute><PrivacySettings /></PrivateRoute>} />
-                        <Route path="career/portfolio" element={<PrivateRoute><PortfolioBuilder /></PrivateRoute>} />
-                        <Route path="social/showcase" element={<PrivateRoute><ProjectShowcase /></PrivateRoute>} />
-                        <Route path="learning" element={<PrivateRoute><MyLearning /></PrivateRoute>} />
-                        <Route path="internships" element={<PrivateRoute><InternshipMarketplace /></PrivateRoute>} />
-                        <Route path="post-internship" element={<PrivateRoute><PostMicroInternship /></PrivateRoute>} />
-                        <Route path="internships/manage" element={<PrivateRoute><ManageApplicants /></PrivateRoute>} />
-                        <Route path="internships/workflow" element={<PrivateRoute><InternshipWorkflow /></PrivateRoute>} />
-                    </Route>
+                        }>
+                            <Route index element={<IncubatorDashboard />} />
+                            <Route path="dashboard" element={<IncubatorDashboard />} />
+                            <Route path="startups" element={<IncubatorStartups />} />
+                            <Route path="startups/:id" element={<IncubatorStartupDetail />} />
+                            <Route path="apply" element={<IncubatorApply />} />
+                            <Route path="multiverse" element={<MultiverseHQ />} />
+                            <Route path="simulation" element={<StartupMultiverse />} />
+                            <Route path="founder-copilot" element={<FounderCopilot />} />
+                            <Route path="pitch-room" element={<HoloPitchRoom />} />
+                            <Route path="genome" element={<StartupGenome />} />
+                            <Route path="pitch-analysis" element={<PitchAnalysisResults />} />
+                        </Route>
 
-                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                </Routes>
-            </ToastProvider>
-        </AuthProvider>
+                        {/* COLLAB MODULE */}
+                        <Route path="/collab" element={
+                            <PrivateRoute allowedRoles={['founder', 'talent', 'admin']}>
+                                <CollabLayout />
+                            </PrivateRoute>
+                        }>
+                            <Route index element={<CollabMarketplace />} />
+                            <Route path="market" element={<CollabMarketplace />} />
+                            <Route path="post" element={<CollabPostProject />} />
+                            <Route path="project/:id" element={<CollabProjectDetail />} />
+                            <Route path="neural-match" element={<NeuralTalentMatch />} />
+                            <Route path="war-room" element={<ProjectWarRoom3D />} />
+                            <Route path="war-room-legacy" element={<ProjectWarRoom />} />
+                            <Route path="assessment" element={<WorkDNA />} />
+                            <Route path="skill-evolution" element={<SkillEvolution />} />
+                            <Route path="board/:id" element={<ProjectBoard />} />
+                        </Route>
+
+                        {/* SKILLSWAP MODULE */}
+                        <Route path="/skillswap" element={
+                            <PrivateRoute allowedRoles={['student', 'teen', 'company', 'founder', 'admin']}>
+                                <SkillSwapLayout />
+                            </PrivateRoute>
+                        }>
+                            <Route index element={<StudentDashboard />} />
+                            <Route path="dashboard" element={<StudentDashboard />} />
+                            <Route path="company-portal" element={<CompanyDashboard />} />
+                            <Route path="projects" element={<SkillSwapProjects />} />
+                            <Route path="consent" element={<SkillSwapConsent />} />
+                            <Route path="assessment" element={<AssessmentWizard />} />
+                            <Route path="leaderboard" element={<Leaderboard />} />
+                            <Route path="wellbeing" element={<WellbeingDashboard />} />
+                            <Route path="parent-insight" element={<ParentalInsight />} />
+                            <Route path="ecosystem/brain" element={<EcosystemBrain />} />
+                            <Route path="ecosystem/symbiosis" element={<SymbiosisEngine />} />
+                            <Route path="metaverse/workspace" element={<DigitalTwinWorkspace />} />
+                            <Route path="metaverse/meeting" element={<HoloMeeting />} />
+                            <Route path="lms" element={<StudentDashboard />} />
+                            <Route path="learning/:moduleId/:lessonId" element={<LessonPlayer />} />
+                            <Route path="web3/wallet" element={<SkillWallet />} />
+                            <Route path="impact/global" element={<PlanetaryDashboard />} />
+                            <Route path="skill-wallet" element={<SkillWalletPage />} />
+                            <Route path="metaverse" element={<MetaverseHQ />} />
+                            <Route path="metaverse/room/:roomId" element={<MetaverseHQ />} />
+                            <Route path="parent-portal" element={<ParentDashboardNew />} />
+                            <Route path="global-impact" element={<GlobalImpactDashboard />} />
+                            <Route path="settings" element={<NeuroSettingsPage />} />
+                            <Route path="chat" element={<LiveChat />} />
+                        </Route>
+
+                        {/* GENERAL DASHBOARD / ADMIN */}
+                        <Route path="/" element={<Layout />}>
+                            <Route path="dashboard" element={
+                                <PrivateRoute>
+                                    <UserDashboard />
+                                </PrivateRoute>
+                            } />
+                            <Route path="admin" element={
+                                <PrivateRoute allowedRoles={['admin']}>
+                                    <AdminDashboard />
+                                </PrivateRoute>
+                            } />
+                            <Route path="admin/users" element={
+                                <PrivateRoute allowedRoles={['admin']}>
+                                    <UserManagement />
+                                </PrivateRoute>
+                            } />
+                            <Route path="admin/moderation" element={
+                                <PrivateRoute allowedRoles={['admin']}>
+                                    <ContentModeration />
+                                </PrivateRoute>
+                            } />
+                            <Route path="admin/panel" element={
+                                <PrivateRoute allowedRoles={['admin']}>
+                                    <AdminPanel />
+                                </PrivateRoute>
+                            } />
+                            <Route path="parent" element={
+                                <PrivateRoute>
+                                    <ParentDashboard />
+                                </PrivateRoute>
+                            } />
+                            <Route path="settings/neuro" element={<PrivateRoute><NeuroSettings /></PrivateRoute>} />
+                            <Route path="settings/privacy" element={<PrivateRoute><PrivacySettings /></PrivateRoute>} />
+                            <Route path="career/portfolio" element={<PrivateRoute><PortfolioBuilder /></PrivateRoute>} />
+                            <Route path="social/showcase" element={<PrivateRoute><ProjectShowcase /></PrivateRoute>} />
+                            <Route path="learning" element={<PrivateRoute><MyLearning /></PrivateRoute>} />
+                            <Route path="internships" element={<PrivateRoute><InternshipMarketplace /></PrivateRoute>} />
+                            <Route path="post-internship" element={<PrivateRoute><PostMicroInternship /></PrivateRoute>} />
+                            <Route path="internships/manage" element={<PrivateRoute><ManageApplicants /></PrivateRoute>} />
+                            <Route path="internships/workflow" element={<PrivateRoute><InternshipWorkflow /></PrivateRoute>} />
+                        </Route>
+
+                        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    </Routes>
+                </ToastProvider>
+            </AuthProvider>
+        </BrowserRouter>
     );
 };
 
