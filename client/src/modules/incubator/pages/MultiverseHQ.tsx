@@ -110,9 +110,11 @@ const MultiverseHQ: React.FC = () => {
     useEffect(() => {
         const socketUrl = import.meta.env.VITE_API_URL
             ? import.meta.env.VITE_API_URL.replace('/api', '')
-            : 'http://localhost:5001';
+            : (import.meta.env.PROD ? '' : 'http://localhost:5001');
 
-        const newSocket = io(socketUrl);
+        const newSocket = io(socketUrl, {
+            path: '/socket.io'
+        });
         setSocket(newSocket);
 
         newSocket.on('connect', () => {

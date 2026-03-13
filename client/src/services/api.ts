@@ -9,7 +9,7 @@ interface ExtendedAxiosInstance extends AxiosInstance {
 }
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
+    baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5001/api'),
     headers: {
         'Content-Type': 'application/json',
     },

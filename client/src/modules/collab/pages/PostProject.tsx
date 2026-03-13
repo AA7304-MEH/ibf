@@ -48,7 +48,7 @@ const PostProject: React.FC = () => {
         try {
             // In a real app, use auth token header
             const token = localStorage.getItem('token');
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+            const apiUrl = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5001/api');
             const res = await fetch(`${apiUrl}/collab/projects`, {
                 method: 'POST',
                 headers: {

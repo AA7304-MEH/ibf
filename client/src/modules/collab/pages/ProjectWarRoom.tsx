@@ -21,9 +21,11 @@ const ProjectWarRoom: React.FC = () => {
     useEffect(() => {
         const socketUrl = import.meta.env.VITE_API_URL
             ? import.meta.env.VITE_API_URL.replace('/api', '')
-            : 'http://localhost:5001';
+            : (import.meta.env.PROD ? '' : 'http://localhost:5001');
 
-        const s = io(socketUrl);
+        const s = io(socketUrl, {
+            path: '/socket.io'
+        });
         setSocket(s);
 
         s.emit('join_project', projectId);
