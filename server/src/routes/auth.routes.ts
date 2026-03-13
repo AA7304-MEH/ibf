@@ -36,7 +36,7 @@ const MOCK_USERS = [
         _id: new mongoose.Types.ObjectId(),
         email: 'student@test.com',
         password: bcrypt.hashSync('student123', 10),
-        role: 'teen', // Updated to match User model enum
+        role: 'student', // Updated to match User model enum
         firstName: 'Test',
         lastName: 'Student'
     }
