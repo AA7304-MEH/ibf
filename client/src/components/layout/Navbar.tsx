@@ -29,6 +29,10 @@ const Navbar: React.FC = () => {
                     <Link to="/register" className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
                         Get Started
                     </Link>
+                    {/* Dev Shortcut */}
+                    <Link to="/login" className="text-[10px] text-gray-300 hover:text-gray-500 absolute -bottom-4 right-0 opacity-0 hover:opacity-100 transition-opacity">
+                        Admin Dev Access
+                    </Link>
                 </>
             );
         }
@@ -73,8 +77,9 @@ const Navbar: React.FC = () => {
                         <Link to="/skillswap" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
                             SkillSwap
                         </Link>
-                        <Link to="/admin" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Admin
+                        <Link to="/admin" className="bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-md text-sm font-bold border border-red-200 transition-all flex items-center">
+                            <span className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span>
+                            Admin Panel
                         </Link>
                     </>
                 )}

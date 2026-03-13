@@ -29,3 +29,6 @@
 2026-02-23 19:27:18:2718 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
 2026-02-23 19:53:30:5330 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017: Instance closed unexpectedly with code "3221225794" and signal "null"[39m
 [31mExit Code is large, commonly meaning that vc_redist is not installed, the latest vc_redist can be found at https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170[39m
+2026-03-13 21:58:08:588 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017: Instance failed to start within 10000ms[39m
+2026-03-13 21:58:39:5839 [31merror[39m: [31mCRITICAL: MongoDB connection failed (Server will run in limited MOCK MODE): connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-03-13 21:58:49:5849 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
