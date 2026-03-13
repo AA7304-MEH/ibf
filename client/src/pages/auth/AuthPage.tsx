@@ -62,10 +62,10 @@ const AuthPage: React.FC = () => {
                         <span className="text-white font-bold text-xl">IBF</span>
                     </div>
                 </div>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                <h2 className="mt-6 text-center text-3xl font-extrabold text-black">
                     {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
                 </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
+                <p className="mt-2 text-center text-sm text-gray-900">
                     Or{' '}
                     <button
                         onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
@@ -81,7 +81,7 @@ const AuthPage: React.FC = () => {
                 <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="email" className="block text-sm font-bold text-black">
                                 Email address
                             </label>
                             <div className="mt-1">
@@ -99,7 +99,7 @@ const AuthPage: React.FC = () => {
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="password" className="block text-sm font-bold text-black">
                                 Password
                             </label>
                             <div className="mt-1">
@@ -118,7 +118,7 @@ const AuthPage: React.FC = () => {
 
                         {mode === 'register' && (
                             <div>
-                                <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="role" className="block text-sm font-bold text-black">
                                     I am a...
                                 </label>
                                 <select
@@ -152,7 +152,7 @@ const AuthPage: React.FC = () => {
                                     <ExclamationTriangleIcon className="w-4 h-4" />
                                     {mockInfo.isWarmingUp ? 'DATABASE WARMING UP' : 'DATABASE OFFLINE (Mock Mode)'}
                                 </p>
-                                <p className={`text-[10px] mt-1 ${mockInfo.isWarmingUp ? 'text-blue-700' : 'text-amber-700'}`}>
+                                <p className={`text-[10px] mt-1 ${mockInfo.isWarmingUp ? 'text-blue-900 font-medium' : 'text-amber-900 font-medium'}`}>
                                     {mockInfo.isWarmingUp
                                         ? 'Initial startup may take 30-60 seconds. You can try these credentials while you wait:'
                                         : 'Fallback credentials for local testing:'}
