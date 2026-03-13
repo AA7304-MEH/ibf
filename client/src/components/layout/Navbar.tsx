@@ -58,8 +58,15 @@ const Navbar: React.FC = () => {
                     </Link>
                 )}
 
-                {/* Student Navigation */}
-                {user.role === 'student' && (
+                {/* Student / Teen Navigation */}
+                {['student', 'teen'].includes(user.role) && (
+                    <Link to="/skillswap" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                        SkillSwap
+                    </Link>
+                )}
+
+                {/* Parent / Company / Founder Navigation for SkillSwap */}
+                {['parent', 'company', 'founder'].includes(user.role) && (
                     <Link to="/skillswap" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
                         SkillSwap
                     </Link>
@@ -221,7 +228,7 @@ const Navbar: React.FC = () => {
                                         </Link>
                                     )}
 
-                                    {['student', 'admin'].includes(user.role) && (
+                                    {['student', 'teen', 'admin', 'founder', 'parent', 'company'].includes(user.role) && (
                                         <Link
                                             to="/skillswap"
                                             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"

@@ -167,7 +167,7 @@ const App: React.FC = () => {
 
                         {/* SKILLSWAP MODULE */}
                         <Route path="/skillswap" element={
-                            <PrivateRoute allowedRoles={['student', 'teen', 'company', 'founder', 'admin']}>
+                            <PrivateRoute allowedRoles={['student', 'teen', 'company', 'founder', 'parent', 'admin']}>
                                 <SkillSwapLayout />
                             </PrivateRoute>
                         }>

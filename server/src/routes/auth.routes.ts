@@ -22,7 +22,8 @@ const MOCK_USERS = [
         password: bcrypt.hashSync('admin123', 10),
         role: 'admin',
         firstName: 'System',
-        lastName: 'Admin'
+        lastName: 'Admin',
+        moduleAccess: ['incubator', 'collab', 'skillswap']
     },
     {
         _id: new mongoose.Types.ObjectId(),
@@ -30,15 +31,17 @@ const MOCK_USERS = [
         password: bcrypt.hashSync('founder123', 10),
         role: 'founder',
         firstName: 'Test',
-        lastName: 'Founder'
+        lastName: 'Founder',
+        moduleAccess: ['incubator', 'collab', 'skillswap']
     },
     {
         _id: new mongoose.Types.ObjectId(),
         email: 'student@test.com',
         password: bcrypt.hashSync('student123', 10),
-        role: 'student', // Updated to match User model enum
+        role: 'student',
         firstName: 'Test',
-        lastName: 'Student'
+        lastName: 'Student',
+        moduleAccess: ['skillswap']
     }
 ];
 
@@ -75,12 +78,13 @@ router.post('/register', async (req, res) => {
             const newUser = {
                 _id: new mongoose.Types.ObjectId(),
                 email,
-                password, // Note: In mock mode we don't hash to keep it simple, or we could. 
+                password,
                 role,
                 firstName,
                 lastName,
                 schoolDetails,
-                parentInfo
+                parentInfo,
+                moduleAccess
             };
             MOCK_USERS.push(newUser);
 
@@ -100,6 +104,12 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        // Determine default module access based on role
+        let moduleAccess: string[] = [];
+        if (['student', 'teen', 'parent', 'company'].includes(role)) moduleAccess = ['skillswap'];
+        if (role === 'founder') moduleAccess = ['incubator', 'collab', 'skillswap'];
+        if (role === 'talent') moduleAccess = ['collab'];
+
         console.log("[REGISTER DEBUG] Creating User in MongoDB...");
         const user = await User.create({
             firstName,
@@ -110,6 +120,7 @@ router.post('/register', async (req, res) => {
             dateOfBirth,
             schoolDetails,
             parentInfo,
+            moduleAccess,
             consentStatus: parentInfo ? 'pending' : undefined
         });
 

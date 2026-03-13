@@ -82,7 +82,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
         }
 
         // 3. SKILLSWAP MODULE - (Now includes Parent & Company Portals as sub-features)
-        if (['student', 'parent', 'company', 'admin'].includes(userRole)) {
+        if (['student', 'teen', 'parent', 'company', 'admin', 'founder'].includes(userRole)) {
             if (currentModule === 'skillswap' || currentModule === 'general') {
                 const skillSwapItems = [
                     { name: 'My Learning', path: '/skillswap', icon: AcademicCapIcon },

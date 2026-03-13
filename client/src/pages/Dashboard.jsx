@@ -73,9 +73,23 @@ const Dashboard = () => {
         switch (user?.role) {
             case 'founder': return <FounderDashboard data={dashboardData} refreshData={fetchDashboardData} />;
             case 'talent': return <TalentDashboard data={dashboardData} />;
-            case 'student': return <StudentDashboard data={dashboardData} />;
+            case 'student':
+            case 'teen': return <StudentDashboard data={dashboardData} />;
             case 'admin': return <AdminDashboard data={dashboardData} />;
-            default: return null;
+            default: return (
+                <div className="p-8 text-center">
+                    <h2 className="text-2xl font-bold mb-4">Welcome to IBF</h2>
+                    <p className="text-foreground-muted mb-8">Your specialized dashboard is currently under configuration.</p>
+                    <div className="flex justify-center gap-4">
+                        <Button onClick={() => window.location.href = '/skillswap'} className="bg-primary hover:bg-primary-hover text-white">
+                            Go to SkillSwap
+                        </Button>
+                        <Button onClick={() => window.location.href = '/collab'} className="bg-background-surface border border-border">
+                            Go to Collab
+                        </Button>
+                    </div>
+                </div>
+            );
         }
     };
 
