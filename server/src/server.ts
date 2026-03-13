@@ -148,6 +148,15 @@ import wellbeingRoutes from './routes/wellbeing.routes';
 import gamificationRoutes from './routes/gamification.routes';
 import parentRoutes from './routes/parent.routes';
 
+// Health Check
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    });
+});
+
 // Base Auth
 app.use('/api/auth', authRoutes);
 

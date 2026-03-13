@@ -13,3 +13,19 @@
 2026-02-22 22:01:04:14 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017[39m
 2026-02-22 22:01:35:135 [31merror[39m: [31mCRITICAL: MongoDB connection failed: connect ECONNREFUSED 127.0.0.1:27017[39m
 2026-02-22 22:01:45:145 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-23 16:57:55:5755 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017[39m
+2026-02-23 16:58:25:5825 [31merror[39m: [31mCRITICAL: MongoDB connection failed: connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-23 17:16:01:161 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017: Instance failed to start within 10000ms[39m
+2026-02-23 17:16:32:1632 [31merror[39m: [31mCRITICAL: MongoDB connection failed (Server will run in limited MOCK MODE): connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-23 17:16:42:1642 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-23 18:23:42:2342 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017: Instance failed to start within 10000ms[39m
+2026-02-23 18:24:13:2413 [31merror[39m: [31mCRITICAL: MongoDB connection failed (Server will run in limited MOCK MODE): connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-23 18:24:23:2423 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-23 18:53:19:5319 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017: Instance failed to start within 10000ms[39m
+2026-02-23 18:53:50:5350 [31merror[39m: [31mCRITICAL: MongoDB connection failed (Server will run in limited MOCK MODE): connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-23 18:54:00:540 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-23 19:26:37:2637 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017: Instance failed to start within 10000ms[39m
+2026-02-23 19:27:08:278 [31merror[39m: [31mCRITICAL: MongoDB connection failed (Server will run in limited MOCK MODE): connect ECONNREFUSED 127.0.0.1:27017[39m
+2026-02-23 19:27:18:2718 [31merror[39m: [31mSeeding failed: Operation `users.findOne()` buffering timed out after 10000ms[39m
+2026-02-23 19:53:30:5330 [31merror[39m: [31mFailed to start MongoDB Memory Server, falling back to local port 27017: Instance closed unexpectedly with code "3221225794" and signal "null"[39m
+[31mExit Code is large, commonly meaning that vc_redist is not installed, the latest vc_redist can be found at https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170[39m

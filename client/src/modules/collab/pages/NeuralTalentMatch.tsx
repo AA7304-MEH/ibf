@@ -106,7 +106,6 @@ const TalentNode = ({
                 position={[0, 1.2, 0]}
                 fontSize={0.25}
                 color={isSelected ? "#4f46e5" : "#64748b"}
-                font="/fonts/Inter-Bold.woff" // Assuming font exists or fallback
                 anchorX="center"
                 anchorY="middle"
             >
@@ -172,7 +171,7 @@ const NeuralTalentMatch: React.FC = () => {
                             <Sphere args={[0.8, 32, 32]} onClick={() => setSelectedCandId('')}>
                                 <meshStandardMaterial color="#4f46e5" emissive="#4f46e5" emissiveIntensity={0.2} roughness={0} metalness={1} />
                             </Sphere>
-                            <Text position={[0, 1.5, 0]} fontSize={0.3} color="white" font="/fonts/Inter-Bold.woff">YOU</Text>
+                            <Text position={[0, 1.5, 0]} fontSize={0.3} color="white">YOU</Text>
                         </Float>
 
                         {/* Candidate Nodes */}
