@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BuildingOfficeIcon, UserGroupIcon, AcademicCapIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import LiveChatbot from '../components/ai/LiveChatbot';
 
 const Home: React.FC = () => {
     return (
@@ -202,6 +203,7 @@ const Home: React.FC = () => {
                     </div>
                 </div>
             </div>
+            <LiveChatbot />
         </div>
     );
 };

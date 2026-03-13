@@ -6,6 +6,7 @@ import {
     XMarkIcon,
     ChevronDownIcon
 } from '@heroicons/react/24/outline';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar: React.FC = () => {
     const { user, logout } = useAuth();
@@ -152,11 +153,13 @@ const Navbar: React.FC = () => {
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-4">
+                        <ThemeToggle />
                         <NavLinks />
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <div className="md:hidden flex items-center">
+                    <div className="md:hidden flex items-center space-x-2">
+                        <ThemeToggle />
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="text-gray-700 p-2 rounded-md hover:bg-gray-100"

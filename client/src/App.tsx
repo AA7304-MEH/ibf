@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Layout Components
 import Layout from './components/layout/Layout';
@@ -109,8 +110,9 @@ import LiveChat from './modules/skillswap/pages/LiveChat';
 const App: React.FC = () => {
     return (
         <BrowserRouter>
-            <AuthProvider>
-                <ToastProvider>
+            <ThemeProvider>
+                <AuthProvider>
+                    <ToastProvider>
                     <AICopilot />
                     <Routes>
                         {/* Public Routes */}
@@ -242,6 +244,7 @@ const App: React.FC = () => {
                     </Routes>
                 </ToastProvider>
             </AuthProvider>
+            </ThemeProvider>
         </BrowserRouter>
     );
 };
