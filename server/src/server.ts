@@ -147,6 +147,7 @@ import skillswapRoutes from './routes/skillswap.routes';
 import wellbeingRoutes from './routes/wellbeing.routes';
 import gamificationRoutes from './routes/gamification.routes';
 import parentRoutes from './routes/parent.routes';
+import adminRoutes from './routes/admin.routes';
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -165,6 +166,7 @@ app.use('/api/incubator', incubatorRoutes);
 app.use('/api/collab', collabRoutes);
 app.use('/api/skillswap', skillswapRoutes);
 app.use('/api/parent', parentRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Shared Multi-Module Services
 app.use('/api/wellbeing', wellbeingRoutes);
