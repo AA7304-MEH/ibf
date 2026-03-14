@@ -64,11 +64,18 @@ router.post('/register', async (req, res) => {
             parentInfo
         } = req.body;
 
-        // CHECK DB STATUS
+        // 1. Determine default module access based on role (DO THIS BEFORE DB CHECK)
+        let moduleAccess: string[] = [];
+        if (['student', 'teen', 'parent', 'company'].includes(role)) moduleAccess = ['skillswap'];
+        if (role === 'founder') moduleAccess = ['incubator', 'collab', 'skillswap'];
+        if (role === 'talent') moduleAccess = ['collab'];
+        if (role === 'admin') moduleAccess = ['incubator', 'collab', 'skillswap', 'admin'];
+
+        // 2. CHECK DB STATUS
         const isDbConnected = mongoose.connection.readyState === 1;
 
         if (!isDbConnected) {
-            console.warn("[WARN] DB Not Connected. Using MOCK_USERS fallback.");
+            console.warn("[REGISTER WARN] DB Not Connected. Using MOCK_USERS fallback.");
 
             // Mock Validation
             if (MOCK_USERS.find(u => u.email === email)) {
@@ -78,7 +85,7 @@ router.post('/register', async (req, res) => {
             const newUser = {
                 _id: new mongoose.Types.ObjectId(),
                 email,
-                password,
+                password: bcrypt.hashSync(password, 10), // Hash it for mock too
                 role,
                 firstName,
                 lastName,
@@ -88,7 +95,7 @@ router.post('/register', async (req, res) => {
             };
             MOCK_USERS.push(newUser);
 
-            console.log("[REGISTER DEBUG] MOCK User Created:", newUser._id);
+            console.log("[REGISTER SUCCESS] MOCK User Created:", newUser._id);
             return res.status(201).json({
                 _id: newUser._id,
                 email: newUser.email,
@@ -97,18 +104,12 @@ router.post('/register', async (req, res) => {
             });
         }
 
-        // REAL DB LOGIC
+        // 3. REAL DB LOGIC
         const userExists = await User.findOne({ email });
         if (userExists) {
             console.log("[REGISTER DEBUG] User already exists:", email);
             return res.status(400).json({ message: 'User already exists' });
         }
-
-        // Determine default module access based on role
-        let moduleAccess: string[] = [];
-        if (['student', 'teen', 'parent', 'company'].includes(role)) moduleAccess = ['skillswap'];
-        if (role === 'founder') moduleAccess = ['incubator', 'collab', 'skillswap'];
-        if (role === 'talent') moduleAccess = ['collab'];
 
         console.log("[REGISTER DEBUG] Creating User in MongoDB...");
         const user = await User.create({
@@ -124,7 +125,7 @@ router.post('/register', async (req, res) => {
             consentStatus: parentInfo ? 'pending' : undefined
         });
 
-        console.log("[REGISTER DEBUG] MongoDB User Created Successfully:", user._id);
+        console.log("[REGISTER SUCCESS] MongoDB User Created Successfully:", user._id);
 
         if (user) {
             res.status(201).json({
@@ -181,7 +182,7 @@ router.post('/login', async (req, res) => {
         console.log(`[AUTH DEBUG] Current DB Status: ${dbStatus} (0=disc, 1=conn, 2=connecting, 3=disconnecting)`);
 
         if (dbStatus !== 1) {
-            console.warn("[AUTH WARN] DB not completely connected. Checking MOCK_USERS as secondary fallback.");
+            console.warn(`[AUTH WARN] DB Status: ${dbStatus}. Searching fallback list.`);
             const mockUser = MOCK_USERS.find(u => u.email === email);
             if (mockUser && await bcrypt.compare(password, mockUser.password)) {
                 console.log(`[AUTH SUCCESS] User ${email} authenticated via MOCK_USERS`);
@@ -195,11 +196,11 @@ router.post('/login', async (req, res) => {
                 });
             }
 
-            // If it's still connecting, we might want to return a specific "Wait" error or just fail
-            if (dbStatus === 2) {
-                console.log("[AUTH FAILED] DB is still connecting and user not in mock fallback.");
+            // CRITICAL: Prevent hang if DB is completely offline (0) or stuck (2)
+            if (dbStatus === 0 || dbStatus === 2) {
+                console.error(`[AUTH FAILED] DB ${dbStatus === 0 ? 'Disconnected' : 'Connecting'} and user not in mock list.`);
                 return res.status(503).json({
-                    message: 'Database is warming up, please try again in a moment.',
+                    message: dbStatus === 0 ? 'Database is currently offline.' : 'Database is warming up, please try again in a moment.',
                     isMockMode: true,
                     availableCredentials: 'admin@ibf.com / admin123'
                 });
