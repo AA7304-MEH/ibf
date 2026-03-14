@@ -5,7 +5,6 @@ import mongoose from 'mongoose';
 import http from 'http';
 import path from 'path';
 import { socketService } from './services/socketService';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { logger } from './utils/logger';
 import { validateEnv } from './utils/validateEnv';
@@ -48,12 +47,19 @@ let dbPromise: Promise<typeof mongoose> | null = null;
 const connectDB = async () => {
     if (dbPromise) return dbPromise;
 
-    const isLocal = !process.env.MONGODB_URI || process.env.MONGODB_URI.includes('username:password') || process.env.MONGODB_URI === 'mongodb://127.0.0.1:27017/skillbridge';
+    // Check if we require a local memory server. NEVER do this on VERCEL.
+    const isLocal = (!process.env.MONGODB_URI || 
+                     process.env.MONGODB_URI.includes('username:password') || 
+                     process.env.MONGODB_URI === 'mongodb://127.0.0.1:27017/skillbridge') 
+                    && !process.env.VERCEL;
+                    
     let uri = process.env.MONGODB_URI as string;
 
     if (isLocal) {
         try {
             logger.info('Starting MongoDB Memory Server (Local Dev Mode)...');
+            // Dynamic import prevents Vercel from trying to bundle devDependencies
+            const { MongoMemoryServer } = await import('mongodb-memory-server');
             const mongod = await MongoMemoryServer.create({
                 instance: {
                     dbName: 'skillbridge'
