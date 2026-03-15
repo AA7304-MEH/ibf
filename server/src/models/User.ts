@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-export interface IUser extends mongoose.Document {
+export interface IUser {
+    _id: mongoose.Types.ObjectId;
     firstName?: string;
     lastName?: string;
     email: string;
@@ -57,16 +58,31 @@ export interface IUser extends mongoose.Document {
     lastLoginDate?: Date;
     achievements?: string[];
 
-    // Auth0 / Session management
-    verificationToken?: string;
-    resetPasswordToken?: string;
+    // Marketplace & Wallet Fields
+    kycStatus: 'none' | 'pending' | 'verified' | 'rejected';
+    kycData?: {
+        idType: string;
+        idNumber: string;
+        idDocumentUrl: string;
+        selfieUrl: string;
+    };
+    balance: number; // in paise
+    totalEarned: number; // in paise
+    referralCode?: string;
+    referredBy?: mongoose.Types.ObjectId;
+    referralEarnings: number; // in paise
+
     resetPasswordExpires?: Date;
     lastLogin: Date;
+    lastClaimedDailyBonus?: Date;
+    totalTasksCompleted: number;
+    verificationToken?: string;
+    resetPasswordToken?: string;
     createdAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const UserSchema = new mongoose.Schema<IUser>({
+const UserSchema = new mongoose.Schema({
     firstName: {
         type: String,
         trim: true
@@ -164,19 +180,42 @@ const UserSchema = new mongoose.Schema<IUser>({
     lastLoginDate: Date,
     achievements: [String],
 
+    // Marketplace & Wallet Fields
+    kycStatus: {
+        type: String,
+        enum: ['none', 'pending', 'verified', 'rejected'],
+        default: 'none'
+    },
+    kycData: {
+        idType: String,
+        idNumber: String,
+        idDocumentUrl: String,
+        selfieUrl: String
+    },
+    balance: { type: Number, default: 0 },
+    totalEarned: { type: Number, default: 0 },
+    referralCode: { type: String, unique: true, sparse: true },
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    referralEarnings: { type: Number, default: 0 },
+
     verificationToken: String,
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     lastLogin: {
         type: Date,
         default: Date.now
+    },
+    lastClaimedDailyBonus: Date,
+    totalTasksCompleted: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true
 });
 
 // Password hashing skip if using Auth0 (no password)
-UserSchema.pre('save', async function () {
+UserSchema.pre('save', async function (this: any) {
     if (!this.password || !this.isModified('password')) return;
 
     try {
@@ -187,7 +226,7 @@ UserSchema.pre('save', async function () {
     }
 });
 
-UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+UserSchema.methods.comparePassword = async function (this: any, candidatePassword: string): Promise<boolean> {
     if (!this.password) return false;
     return await bcrypt.compare(candidatePassword, this.password);
 };

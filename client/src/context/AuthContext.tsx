@@ -5,6 +5,14 @@ interface User {
     _id: string;
     email: string;
     role: 'founder' | 'talent' | 'student' | 'admin' | 'teen';
+    balance: number;
+    totalEarned: number;
+    xp: number;
+    level: number;
+    loginStreak: number;
+    lastClaimedDailyBonus?: string;
+    referralEarnings: number;
+    totalTasksCompleted: number;
 }
 
 interface AuthContextType {

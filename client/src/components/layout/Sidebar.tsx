@@ -1,155 +1,98 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
     HomeIcon,
     BriefcaseIcon,
     UserGroupIcon,
     AcademicCapIcon,
-    ChartBarIcon,
+    TrophyIcon,
     ShieldCheckIcon,
-    CloudArrowDownIcon,
     BuildingLibraryIcon,
-    CubeTransparentIcon,
+    CpuChipIcon,
     BoltIcon,
     CreditCardIcon,
-    GlobeAltIcon,
     RocketLaunchIcon,
-    FingerPrintIcon,
-    HeartIcon,
-    CpuChipIcon,
-    ChatBubbleLeftRightIcon
+    ArrowTrendingUpIcon,
 } from '@heroicons/react/24/outline';
+import {
+    HomeIcon as HomeSolid,
+    BriefcaseIcon as BriefcaseSolid,
+    TrophyIcon as TrophySolid,
+    RocketLaunchIcon as RocketSolid,
+    UserGroupIcon as UserGroupSolid,
+    AcademicCapIcon as AcademicSolid,
+    CreditCardIcon as CreditSolid,
+    BoltIcon as BoltSolid,
+    ArrowTrendingUpIcon as TrendingSolid,
+    ShieldCheckIcon as ShieldSolid,
+    CpuChipIcon as CpuSolid,
+    BuildingLibraryIcon as LibrarySolid,
+} from '@heroicons/react/24/solid';
 
 interface SidebarProps {
     userRole: string;
 }
 
+type NavItem = {
+    name: string;
+    path: string;
+    icon: React.ElementType;
+    iconSolid: React.ElementType;
+    badge?: string;
+};
+
 type NavSection = {
     title: string;
-    items: { name: string; path: string; icon: any }[];
+    items: NavItem[];
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     const location = useLocation();
-    const pathname = location.pathname;
 
-    // Detect active module
-    const currentModule = pathname.startsWith('/skillswap') ? 'skillswap'
-        : pathname.startsWith('/incubator') ? 'incubator'
-            : pathname.startsWith('/collab') ? 'collab'
-                : 'general'; // dashboard, profile, etc.
+    const isItemActive = (path: string) => {
+        const base = path.split('?')[0];
+        return location.pathname === base || location.pathname.startsWith(base + '/');
+    };
 
     const getSections = (): NavSection[] => {
-        // Common items for everyone (Overview usually goes to dashboard)
-        // If inside a module, maybe show a "Back to Hub" or specific module dashboard?
-        // For now, keep Overview global but filter the rest.
+        const sections: NavSection[] = [];
 
-        const common = [{ name: 'Overview', path: '/dashboard', icon: HomeIcon }];
+        sections.push({
+            title: 'Earning Centre',
+            items: [
+                { name: 'Dashboard',    path: '/dashboard',          icon: HomeIcon,         iconSolid: HomeSolid },
+                { name: 'Marketplace',  path: '/marketplace',        icon: BriefcaseIcon,    iconSolid: BriefcaseSolid },
+                { name: 'Leaderboard',  path: '/leaderboard/market', icon: TrophyIcon,       iconSolid: TrophySolid },
+            ],
+        });
 
-        let sections: NavSection[] = [];
+        sections.push({
+            title: 'Task Modules',
+            items: [
+                { name: 'Incubator',    path: '/marketplace?module=incubator', icon: RocketLaunchIcon, iconSolid: RocketSolid },
+                { name: 'Collab Hub',   path: '/marketplace?module=collab',    icon: UserGroupIcon,    iconSolid: UserGroupSolid },
+                { name: 'SkillSwap',    path: '/marketplace?module=skillswap', icon: AcademicCapIcon,  iconSolid: AcademicSolid },
+            ],
+        });
 
-        // 1. INCUBATOR MODULE
-        if (userRole === 'founder' || userRole === 'admin') {
-            if (currentModule === 'incubator' || currentModule === 'general') {
-                sections.push({
-                    title: 'Incubator',
-                    items: [
-                        { name: 'Dashboard', path: '/incubator', icon: HomeIcon }, // Module Dashboard
-                        { name: 'Multiverse HQ', path: '/incubator/multiverse', icon: RocketLaunchIcon },
-                        { name: 'Startup Genome', path: '/incubator/genome', icon: ChartBarIcon },
-                        { name: 'Founder Copilot', path: '/incubator/founder-copilot', icon: BoltIcon },
-                        { name: 'Pitch Simulation', path: '/incubator/pitch-room', icon: UserGroupIcon },
-                    ]
-                });
-            }
-        }
+        sections.push({
+            title: 'Financials',
+            items: [
+                { name: 'My Wallet',    path: '/wallet',    icon: CreditCardIcon,       iconSolid: CreditSolid },
+                { name: 'Withdraw',     path: '/withdraw',  icon: BoltIcon,             iconSolid: BoltSolid },
+                { name: 'Referral Hub', path: '/referrals', icon: ArrowTrendingUpIcon,  iconSolid: TrendingSolid },
+            ],
+        });
 
-        // 2. COLLAB MODULE
-        if (['founder', 'talent', 'student', 'admin'].includes(userRole)) {
-            if (currentModule === 'collab' || currentModule === 'general') {
-                sections.push({
-                    title: 'Collab Hub',
-                    items: [
-                        { name: 'Dashboard', path: '/collab', icon: HomeIcon },
-                        { name: 'Neural Match', path: '/collab/neural-match', icon: UserGroupIcon },
-                        { name: 'War Room', path: '/collab/war-room', icon: UserGroupIcon },
-                        { name: 'Work DNA', path: '/collab/assessment', icon: FingerPrintIcon },
-                        { name: 'Skill Evolution', path: '/collab/skill-evolution', icon: ChartBarIcon },
-                        { name: 'Marketplace', path: '/marketplace', icon: BriefcaseIcon },
-                    ]
-                });
-            }
-        }
-
-        // 3. SKILLSWAP MODULE - (Now includes Parent & Company Portals as sub-features)
-        if (['student', 'teen', 'parent', 'company', 'admin', 'founder'].includes(userRole)) {
-            if (currentModule === 'skillswap' || currentModule === 'general') {
-                const skillSwapItems = [
-                    { name: 'My Learning', path: '/skillswap', icon: AcademicCapIcon },
-                    { name: 'Ecosystem Brain', path: '/skillswap/ecosystem/brain', icon: CpuChipIcon },
-                    { name: 'Symbiosis Engine', path: '/skillswap/ecosystem/symbiosis', icon: HeartIcon },
-                    { name: 'Metaverse HQ', path: '/skillswap/metaverse', icon: CubeTransparentIcon },
-                    { name: 'Skill Wallet', path: '/skillswap/skill-wallet', icon: CreditCardIcon },
-                    { name: 'Global Impact', path: '/skillswap/global-impact', icon: GlobeAltIcon },
-                    { name: 'Neuro Settings', path: '/skillswap/settings', icon: BoltIcon },
-                    { name: 'Live Chat', path: '/skillswap/chat', icon: ChatBubbleLeftRightIcon },
-                ];
-
-                sections.push({
-                    title: 'SkillSwap Hub',
-                    items: skillSwapItems
-                });
-
-                // Conditional Parent Integration
-                if (['parent', 'admin'].includes(userRole)) {
-                    sections.push({
-                        title: 'Parent Ecosystem',
-                        items: [
-                            { name: 'Guardian Dashboard', path: '/skillswap/parent-portal', icon: ShieldCheckIcon },
-                            { name: 'Child Insights', path: '/parent/insight', icon: ChartBarIcon },
-                        ]
-                    });
-                }
-
-                // Conditional Company Integration
-                if (['company', 'admin'].includes(userRole)) {
-                    sections.push({
-                        title: 'Company Portal',
-                        items: [
-                            { name: 'CSR Command Center', path: '/skillswap/company-portal', icon: BuildingLibraryIcon },
-                            { name: 'Manage Applicants', path: '/internships/manage', icon: UserGroupIcon },
-                        ]
-                    });
-                }
-
-                sections.push({
-                    title: 'Career & Social',
-                    items: [
-                        { name: 'Portfolio Builder', path: '/career/portfolio', icon: BriefcaseIcon },
-                        { name: 'Micro-Internships', path: '/internships', icon: RocketLaunchIcon },
-                        { name: 'Waitlist / Beta', path: '/social/showcase', icon: UserGroupIcon },
-                    ]
-                });
-
-                sections.push({
-                    title: 'Gamification',
-                    items: [
-                        { name: 'Leaderboard', path: '/skillswap/leaderboard', icon: ChartBarIcon },
-                    ]
-                });
-            }
-        }
-
-
-
-        // General / Hub View
-        if (currentModule === 'general') {
-            // Add a "Modules" header if we are in general view to separate them
-            // Actually, the above logic adds them as blocks. 
-            // Maybe add "General" block at the top
-            sections.unshift({
-                title: 'General',
-                items: common
+        if (userRole === 'admin') {
+            sections.push({
+                title: 'Administration',
+                items: [
+                    { name: 'Admin Panel',   path: '/admin',              icon: ShieldCheckIcon,      iconSolid: ShieldSolid },
+                    { name: 'Manage Tasks',  path: '/admin/tasks',        icon: CpuChipIcon,          iconSolid: CpuSolid },
+                    { name: 'KYC & Payouts', path: '/admin/withdrawals',  icon: BuildingLibraryIcon,  iconSolid: LibrarySolid },
+                ],
             });
         }
 
@@ -157,32 +100,95 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     };
 
     return (
-        <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 bg-surface-card-light dark:bg-surface-card-dark border-r border-gray-200 dark:border-gray-800 hidden lg:block overflow-y-auto">
-            <div className="p-4 space-y-6">
+        <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 hidden lg:flex flex-col overflow-hidden glass border-r border-white/5 z-40 transition-all duration-300">
+            {/* Scrollable nav area */}
+            <nav className="flex-1 overflow-y-auto landing-scrollbar py-6 px-4 space-y-8">
                 {getSections().map((section, idx) => (
                     <div key={idx}>
-                        <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                            {section.title}
-                        </h3>
-                        <div className="space-y-1">
-                            {section.items.map((link) => (
-                                <NavLink
-                                    key={link.path}
-                                    to={link.path}
-                                    className={({ isActive }) =>
-                                        `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${isActive
-                                            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 font-medium'
-                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
-                                        }`
-                                    }
-                                >
-                                    <link.icon className="w-5 h-5" />
-                                    {link.name}
-                                </NavLink>
-                            ))}
+                        {/* Section label */}
+                        <div className="flex items-center gap-3 px-3 mb-3">
+                            <span className="text-[10px] font-syne font-extrabold tracking-[0.2em] uppercase text-teal/40">
+                                {section.title}
+                            </span>
+                            <div className="flex-1 h-[1px] bg-gradient-to-r from-teal/20 to-transparent" />
+                        </div>
+
+                        {/* Nav items */}
+                        <div className="space-y-1.5">
+                            {section.items.map((link) => {
+                                const active = isItemActive(link.path);
+                                const IconOutline = link.icon;
+                                const IconSolid = link.iconSolid;
+
+                                return (
+                                    <NavLink
+                                        key={link.path}
+                                        to={link.path}
+                                        className={({ isActive }) => `
+                                            group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl transition-all duration-300 relative overflow-hidden
+                                            ${active 
+                                                ? 'bg-gradient-to-r from-teal/15 to-transparent text-teal ring-1 ring-inset ring-teal/20' 
+                                                : 'text-muted hover:text-white hover:bg-white/[0.04]'}
+                                        `}
+                                    >
+                                        {/* Active indicator bar */}
+                                        {active && (
+                                            <motion.span 
+                                                layoutId="activeTab"
+                                                className="absolute left-0 top-1/4 bottom-1/4 w-[3px] bg-teal rounded-r-full shadow-[0_0_12px_#00f5d4]" 
+                                            />
+                                        )}
+
+                                        {/* Icon Container */}
+                                        <div className={`
+                                            flex-shrink-0 w-5 h-5 flex items-center justify-center transition-transform duration-300
+                                            ${active ? 'scale-110' : 'group-hover:scale-110'}
+                                        `}>
+                                            {active
+                                                ? <IconSolid className="w-5 h-5 drop-shadow-[0_0_8px_rgba(0,245,212,0.4)]" />
+                                                : <IconOutline className="w-5 h-5 opacity-70 group-hover:opacity-100" />
+                                            }
+                                        </div>
+
+                                        {/* Label */}
+                                        <span className={`font-sans text-[13.5px] tracking-tight truncate ${active ? 'font-bold' : 'font-medium opacity-80 group-hover:opacity-100'}`}>
+                                            {link.name}
+                                        </span>
+
+                                        {/* Badge */}
+                                        {link.badge && (
+                                            <span className="ml-auto text-[9px] font-black px-2 py-0.5 rounded-full bg-teal/10 text-teal border border-teal/20 shadow-[0_0_10px_rgba(0,245,212,0.1)]">
+                                                {link.badge}
+                                            </span>
+                                        )}
+
+                                        {/* Hover Glow Effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-teal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                                    </NavLink>
+                                );
+                            })}
                         </div>
                     </div>
                 ))}
+            </nav>
+
+            {/* Footer branding strip */}
+            <div className="px-6 py-4 flex items-center gap-3 bg-white/[0.02] border-t border-white/5">
+                <div className="relative">
+                    <div className="w-2 h-2 rounded-full bg-teal animate-pulse shadow-[0_0_8px_#00f5d4]" />
+                    <div className="absolute inset-0 w-2 h-2 rounded-full bg-teal animate-ping opacity-40" />
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-[11px] font-syne font-bold tracking-tight text-white/70">
+                        SolveEarn Platform
+                    </span>
+                    <span className="text-[9px] font-semibold text-muted/50 uppercase tracking-tighter">
+                        Nexus Core v2.4
+                    </span>
+                </div>
+                <div className="ml-auto px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[8px] font-black text-muted/40">
+                    LIVE
+                </div>
             </div>
         </aside>
     );

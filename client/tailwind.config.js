@@ -57,14 +57,38 @@ export default {
                     600: 'var(--color-primary)',
                     800: 'var(--color-primary-dark)',
                 },
+                // Static-site-ibf dark theme colors
+                navy: {
+                    DEFAULT: '#0a0f1e',
+                    light: '#111827',
+                    card: '#0d1529',
+                    border: '#1a2744',
+                },
+                teal: {
+                    DEFAULT: '#00f5d4',
+                    dim: '#00c4aa',
+                    glow: 'rgba(0,245,212,0.15)',
+                },
+                amber: {
+                    DEFAULT: '#ffbe0b',
+                    dim: '#e5a800',
+                    glow: 'rgba(255,190,11,0.15)',
+                },
+                muted: '#8b97b3',
             },
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
                 heading: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
+                syne: ['Syne', 'sans-serif'],
+                dm: ['DM Sans', 'sans-serif'],
             },
             animation: {
                 'fade-in': 'fadeIn 0.3s ease-in-out',
                 'slide-up': 'slideUp 0.3s ease-out',
+                marquee: 'marquee 30s linear infinite',
+                float: 'float 4s ease-in-out infinite',
+                pulse_soft: 'pulseSoft 2s ease-in-out infinite',
+                gradient: 'gradient 6s ease infinite',
             },
             keyframes: {
                 fadeIn: {
@@ -75,6 +99,30 @@ export default {
                     '0%': { transform: 'translateY(10px)', opacity: '0' },
                     '100%': { transform: 'translateY(0)', opacity: '1' },
                 },
+                marquee: {
+                    '0%': { transform: 'translateX(0%)' },
+                    '100%': { transform: 'translateX(-50%)' },
+                },
+                float: {
+                    '0%,100%': { transform: 'translateY(0)' },
+                    '50%': { transform: 'translateY(-16px)' },
+                },
+                pulseSoft: {
+                    '0%,100%': { opacity: '1' },
+                    '50%': { opacity: '0.6' },
+                },
+                gradient: {
+                    '0%,100%': { backgroundPosition: '0% 50%' },
+                    '50%': { backgroundPosition: '100% 50%' },
+                },
+            },
+            backgroundSize: {
+                '200%': '200% 200%',
+            },
+            boxShadow: {
+                teal: '0 0 30px rgba(0,245,212,0.25)',
+                amber: '0 0 30px rgba(255,190,11,0.25)',
+                glow: '0 8px 40px rgba(0,245,212,0.15)',
             },
         },
     },

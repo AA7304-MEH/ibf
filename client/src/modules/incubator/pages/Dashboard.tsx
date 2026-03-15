@@ -9,6 +9,7 @@ import {
     AcademicCapIcon
 } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
+import TaskFeed from '../../../pages/marketplace/TaskFeed';
 
 const IncubatorDashboard: React.FC = () => {
     // Mock Data - In real app fetch from /incubator/me
@@ -197,6 +198,9 @@ const IncubatorDashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Micro-Task Marketplace Feed */}
+            <TaskFeed module="incubator" />
         </div>
     );
 };

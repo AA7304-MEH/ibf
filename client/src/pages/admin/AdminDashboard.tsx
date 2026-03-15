@@ -16,7 +16,10 @@ import {
     EyeIcon,
     FlagIcon,
     Cog6ToothIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
+    BriefcaseIcon,
+    IdentificationIcon,
+    BanknotesIcon
 } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
@@ -142,8 +145,10 @@ const AdminDashboard: React.FC = () => {
 
     const quickActions = [
         { title: 'User Management', href: '/admin/users', icon: UsersIcon, desc: 'Manage all users' },
+        { title: 'Marketplace Tasks', href: '/admin/tasks', icon: BriefcaseIcon, desc: 'Manage micro-tasks' },
+        { title: 'KYC Verification', href: '/admin/kyc', icon: IdentificationIcon, desc: 'Approve ID docs' },
+        { title: 'Withdrawals', href: '/admin/withdrawals', icon: BanknotesIcon, desc: 'Process payouts' },
         { title: 'Content Moderation', href: '/admin/moderation', icon: ShieldCheckIcon, desc: 'Review flagged content' },
-        { title: 'Disputes', href: '/admin/disputes', icon: ExclamationTriangleIcon, desc: 'Resolve payment disputes' },
         { title: 'Settings', href: '/admin/settings', icon: Cog6ToothIcon, desc: 'Platform configuration' }
     ];
 

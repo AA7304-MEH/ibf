@@ -8,7 +8,7 @@ const Layout: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     const { user } = useAuth();
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-ibf-dark transition-colors duration-300">
+        <div className="min-h-screen bg-navy text-white transition-colors duration-300">
             <Navbar />
 
             {/* Sidebar (Desktop) */}

@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { GlobalSocketProvider } from './components/GlobalSocketProvider';
 
 // Layout Components
 import Layout from './components/layout/Layout';
@@ -60,6 +61,7 @@ import LessonPlayer from './modules/skillswap/pages/learning/LessonPlayer';
 
 // Gamification & Tools
 import Leaderboard from './modules/skillswap/pages/gamification/Leaderboard';
+import MarketLeaderboard from './pages/marketplace/Leaderboard';
 import WellbeingDashboard from './pages/Wellbeing/WellbeingDashboard';
 import ParentalInsight from './pages/Parent/ParentalInsight';
 
@@ -74,6 +76,7 @@ import SkillWallet from './pages/Web3/SkillWallet';
 import PlanetaryDashboard from './pages/Impact/PlanetaryDashboard';
 import NeuroSettings from './pages/Settings/NeuroSettings';
 import AICopilot from './components/ai/AICopilot';
+import LiveChatbot from './components/ai/LiveChatbot';
 
 // Admin & Settings
 import AdminPanel from './pages/AdminPanel';
@@ -86,6 +89,9 @@ import UserDashboard from './pages/dashboard/Dashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
 import ContentModeration from './pages/admin/ContentModeration';
+import AdminTasks from './pages/admin/AdminTasks';
+import AdminKYC from './pages/admin/AdminKYC';
+import AdminWithdrawals from './pages/admin/AdminWithdrawals';
 import ParentDashboard from './pages/Parent/ParentDashboard';
 import ProjectBoard from './modules/collab/pages/ProjectBoard';
 
@@ -107,14 +113,24 @@ import GlobalImpactDashboard from './modules/skillswap/pages/GlobalImpactDashboa
 import NeuroSettingsPage from './modules/skillswap/pages/NeuroSettings';
 import LiveChat from './modules/skillswap/pages/LiveChat';
 
+// Micro-Task Marketplace & Wallet
+import WalletDashboard from './pages/wallet/WalletDashboard';
+import WithdrawPage from './pages/wallet/Withdraw';
+import KYC from './pages/wallet/KYC';
+import ReferralHub from './pages/wallet/ReferralHub';
+import Marketplace from './pages/marketplace/Marketplace';
+import TaskExecution from './pages/marketplace/TaskExecution';
+
 const App: React.FC = () => {
     return (
         <BrowserRouter>
             <ThemeProvider>
                 <AuthProvider>
                     <ToastProvider>
-                    <AICopilot />
-                    <Routes>
+                        <GlobalSocketProvider>
+                            <AICopilot />
+                            <LiveChatbot />
+                            <Routes>
                         {/* Public Routes */}
                         <Route path="/" element={<Home />} />
                         <Route path="/login" element={<Login />} />
@@ -177,7 +193,7 @@ const App: React.FC = () => {
                             <Route path="projects" element={<SkillSwapProjects />} />
                             <Route path="consent" element={<SkillSwapConsent />} />
                             <Route path="assessment" element={<AssessmentWizard />} />
-                            <Route path="leaderboard" element={<Leaderboard />} />
+                            <Route path="leaderboard" element={<MarketLeaderboard />} />
                             <Route path="wellbeing" element={<WellbeingDashboard />} />
                             <Route path="parent-insight" element={<ParentalInsight />} />
                             <Route path="ecosystem/brain" element={<EcosystemBrain />} />
@@ -219,6 +235,21 @@ const App: React.FC = () => {
                                     <ContentModeration />
                                 </PrivateRoute>
                             } />
+                            <Route path="admin/tasks" element={
+                                <PrivateRoute allowedRoles={['admin', 'founder']}>
+                                    <AdminTasks />
+                                </PrivateRoute>
+                            } />
+                            <Route path="admin/kyc" element={
+                                <PrivateRoute allowedRoles={['admin', 'founder']}>
+                                    <AdminKYC />
+                                </PrivateRoute>
+                            } />
+                            <Route path="admin/withdrawals" element={
+                                <PrivateRoute allowedRoles={['admin', 'founder']}>
+                                    <AdminWithdrawals />
+                                </PrivateRoute>
+                            } />
                             <Route path="admin/panel" element={
                                 <PrivateRoute allowedRoles={['admin']}>
                                     <AdminPanel />
@@ -238,10 +269,48 @@ const App: React.FC = () => {
                             <Route path="post-internship" element={<PrivateRoute><PostMicroInternship /></PrivateRoute>} />
                             <Route path="internships/manage" element={<PrivateRoute><ManageApplicants /></PrivateRoute>} />
                             <Route path="internships/workflow" element={<PrivateRoute><InternshipWorkflow /></PrivateRoute>} />
+                            
+                            {/* Wallet & Marketplace */}
+                            <Route path="wallet" element={
+                                <PrivateRoute>
+                                    <WalletDashboard />
+                                </PrivateRoute>
+                            } />
+                            <Route path="withdraw" element={
+                                <PrivateRoute>
+                                    <WithdrawPage />
+                                </PrivateRoute>
+                            } />
+                            <Route path="leaderboard/market" element={
+                                <PrivateRoute>
+                                    <MarketLeaderboard />
+                                </PrivateRoute>
+                            } />
+                            <Route path="wallet/kyc" element={
+                                <PrivateRoute>
+                                    <KYC />
+                                </PrivateRoute>
+                            } />
+                            <Route path="referrals" element={
+                                <PrivateRoute>
+                                    <ReferralHub />
+                                </PrivateRoute>
+                            } />
+                            <Route path="marketplace" element={
+                                <PrivateRoute>
+                                    <Marketplace />
+                                </PrivateRoute>
+                            } />
+                            <Route path="marketplace/task/:taskId" element={
+                                <PrivateRoute>
+                                    <TaskExecution />
+                                </PrivateRoute>
+                            } />
                         </Route>
 
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
                     </Routes>
+                        </GlobalSocketProvider>
                 </ToastProvider>
             </AuthProvider>
             </ThemeProvider>

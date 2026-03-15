@@ -8,13 +8,14 @@ import { web3Service } from '../../../../services/web3Service';
 import ActiveMissionsPanel from '../../components/ActiveMissionsPanel';
 import TaskManagerPanel from '../../components/TaskManagerPanel';
 import TeamChatPanel from '../../components/TeamChatPanel';
+import TaskFeed from '../../../../pages/marketplace/TaskFeed';
 
 const StudentDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'overview' | 'missions' | 'tasks' | 'chat'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'missions' | 'tasks' | 'marketplace' | 'chat'>('overview');
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
     const [isConnecting, setIsConnecting] = useState(false);
 
@@ -178,6 +179,7 @@ const StudentDashboard: React.FC = () => {
                     { id: 'overview', label: '📊 Overview' },
                     { id: 'missions', label: '🚀 Active Missions' },
                     { id: 'tasks', label: '📋 Task Manager' },
+                    { id: 'marketplace', label: '💼 Earn Money' },
                     { id: 'chat', label: '💬 Team Chat' },
                 ].map((tab) => (
                     <button
@@ -340,6 +342,7 @@ const StudentDashboard: React.FC = () => {
 
             {activeTab === 'missions' && <ActiveMissionsPanel />}
             {activeTab === 'tasks' && <TaskManagerPanel />}
+            {activeTab === 'marketplace' && <TaskFeed module="skillswap" />}
             {activeTab === 'chat' && <TeamChatPanel />}
         </div>
     );

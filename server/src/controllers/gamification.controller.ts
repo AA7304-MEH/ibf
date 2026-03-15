@@ -143,6 +143,30 @@ export const gamificationController = {
             res.status(500).json({ message: error.message });
         }
     },
+
+    // Claim daily bonus (Marketplace)
+    async claimDailyBonus(req: Request, res: Response) {
+        try {
+            const userId = (req as any).user?.id;
+            if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+            const result = await GamificationEngine.claimDailyBonus(userId);
+            res.json(result);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    // Get market leaderboard
+    async getMarketLeaderboard(req: Request, res: Response) {
+        try {
+            const limit = parseInt(req.query.limit as string) || 10;
+            const leaderboard = await GamificationEngine.getMarketplaceLeaderboard(limit);
+            res.json(leaderboard);
+        } catch (error: any) {
+            res.status(500).json({ message: error.message });
+        }
+    }
 };
 
 export default gamificationController;

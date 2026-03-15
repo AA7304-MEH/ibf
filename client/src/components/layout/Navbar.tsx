@@ -6,7 +6,6 @@ import {
     XMarkIcon,
     ChevronDownIcon
 } from '@heroicons/react/24/outline';
-import ThemeToggle from './ThemeToggle';
 
 const Navbar: React.FC = () => {
     const { user, logout } = useAuth();
@@ -19,19 +18,17 @@ const Navbar: React.FC = () => {
         navigate('/');
     };
 
+    const navLinkClass = 'text-muted hover:text-teal transition-colors duration-200 px-3 py-2 rounded-md text-sm font-medium';
+
     const NavLinks = () => {
         if (!user) {
             return (
                 <>
-                    <Link to="/login" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                    <Link to="/login" className={navLinkClass}>
                         Sign In
                     </Link>
-                    <Link to="/register" className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    <Link to="/register" className="btn-teal text-xs py-2.5 px-5">
                         Get Started
-                    </Link>
-                    {/* Dev Shortcut */}
-                    <Link to="/login" className="text-[10px] text-gray-300 hover:text-gray-500 absolute -bottom-4 right-0 opacity-0 hover:opacity-100 transition-opacity">
-                        Admin Dev Access
                     </Link>
                 </>
             );
@@ -42,68 +39,50 @@ const Navbar: React.FC = () => {
                 {/* Founder Navigation */}
                 {user.role === 'founder' && (
                     <>
-                        <Link to="/incubator" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Incubator
-                        </Link>
-                        <Link to="/collab" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Collab
-                        </Link>
+                        <Link to="/incubator" className={navLinkClass}>Incubator</Link>
+                        <Link to="/collab" className={navLinkClass}>Collab</Link>
                     </>
                 )}
 
                 {/* Talent Navigation */}
                 {user.role === 'talent' && (
-                    <Link to="/collab" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                        Collab
-                    </Link>
+                    <Link to="/collab" className={navLinkClass}>Collab</Link>
                 )}
 
                 {/* Student / Teen Navigation */}
                 {['student', 'teen'].includes(user.role) && (
-                    <Link to="/skillswap" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                        SkillSwap
-                    </Link>
+                    <Link to="/skillswap" className={navLinkClass}>SkillSwap</Link>
                 )}
 
                 {/* Parent / Company / Founder Navigation for SkillSwap */}
                 {['parent', 'company', 'founder'].includes(user.role) && (
-                    <Link to="/skillswap" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                        SkillSwap
-                    </Link>
+                    <Link to="/skillswap" className={navLinkClass}>SkillSwap</Link>
                 )}
 
                 {/* Admin Navigation */}
                 {user.role === 'admin' && (
                     <>
-                        <Link to="/incubator" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Incubator
-                        </Link>
-                        <Link to="/collab" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            Collab
-                        </Link>
-                        <Link to="/skillswap" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                            SkillSwap
-                        </Link>
-                        <Link to="/admin" className="bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-md text-sm font-bold border border-red-200 transition-all flex items-center">
-                            <span className="w-2 h-2 bg-red-500 rounded-full mr-2 animate-pulse"></span>
-                            Admin Panel
+                        <Link to="/incubator" className={navLinkClass}>Incubator</Link>
+                        <Link to="/collab" className={navLinkClass}>Collab</Link>
+                        <Link to="/skillswap" className={navLinkClass}>SkillSwap</Link>
+                        <Link to="/admin" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold text-amber bg-amber/10 border border-amber/20 hover:bg-amber/20 transition-all">
+                            <span className="w-2 h-2 bg-amber rounded-full animate-pulse"></span>
+                            Admin
                         </Link>
                     </>
                 )}
 
                 {/* Dashboard Link for All Logged-in Users */}
-                <Link to="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                    Dashboard
-                </Link>
+                <Link to="/dashboard" className={navLinkClass}>Dashboard</Link>
 
                 {/* Profile Dropdown */}
                 <div className="relative">
                     <button
                         onClick={() => setIsProfileOpen(!isProfileOpen)}
-                        className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 focus:outline-none"
+                        className="flex items-center space-x-2 text-muted hover:text-teal focus:outline-none transition-colors"
                     >
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span className="font-semibold text-blue-600 uppercase">
+                        <div className="w-8 h-8 bg-gradient-to-br from-teal to-teal-dim rounded-full flex items-center justify-center shadow-[0_0_12px_rgba(0,245,212,0.3)]">
+                            <span className="font-bold text-navy text-sm uppercase">
                                 {user?.email?.charAt(0) || 'U'}
                             </span>
                         </div>
@@ -111,16 +90,16 @@ const Navbar: React.FC = () => {
                     </button>
 
                     {isProfileOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
-                            <div className="px-4 py-2 border-b border-gray-100">
-                                <p className="font-medium text-gray-900 truncate">{(user as any)?.name || 'User'}</p>
-                                <p className="text-sm text-gray-500 truncate">{user?.email}</p>
-                                <p className="text-xs text-gray-400 capitalize mt-1">{user?.role}</p>
+                        <div className="absolute right-0 mt-2 w-52 glass rounded-xl shadow-2xl border border-white/10 py-1 z-50">
+                            <div className="px-4 py-3 border-b border-white/10">
+                                <p className="font-semibold text-white text-sm truncate">{(user as any)?.name || 'User'}</p>
+                                <p className="text-xs text-muted truncate">{user?.email}</p>
+                                <p className="text-[10px] text-teal capitalize mt-1 font-semibold">{user?.role}</p>
                             </div>
 
                             <Link
                                 to="/dashboard"
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                className="block px-4 py-2.5 text-sm text-muted hover:text-white hover:bg-white/5 transition-colors"
                                 onClick={() => setIsProfileOpen(false)}
                             >
                                 My Dashboard
@@ -128,7 +107,7 @@ const Navbar: React.FC = () => {
 
                             <Link
                                 to="/profile"
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                className="block px-4 py-2.5 text-sm text-muted hover:text-white hover:bg-white/5 transition-colors"
                                 onClick={() => setIsProfileOpen(false)}
                             >
                                 Edit Profile
@@ -136,7 +115,7 @@ const Navbar: React.FC = () => {
 
                             <button
                                 onClick={handleLogout}
-                                className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 border-t border-gray-100"
+                                className="block w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 border-t border-white/10 transition-colors"
                             >
                                 Sign Out
                             </button>
@@ -148,33 +127,29 @@ const Navbar: React.FC = () => {
     };
 
     return (
-        <nav className="bg-white shadow-md sticky top-0 z-40 transition-shadow">
+        <nav className="glass border-b border-white/5 sticky top-0 z-40 backdrop-blur-xl">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     {/* Logo */}
                     <div className="flex items-center">
-                        <Link to="/" className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                                <span className="text-white font-bold text-lg">IBF</span>
-                            </div>
-                            <span className="text-xl font-bold text-gray-900 hidden md:inline tracking-tight">
+                        <Link to="/" className="flex items-center space-x-3">
+                            <span className="font-syne text-2xl font-black tracking-tighter gradient-text">IBF</span>
+                            <span className="text-sm font-medium text-muted hidden md:inline tracking-tight">
                                 Innovator Bridge Foundry
                             </span>
                         </Link>
                     </div>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-4">
-                        <ThemeToggle />
+                    <div className="hidden md:flex items-center space-x-2">
                         <NavLinks />
                     </div>
 
                     {/* Mobile Menu Button */}
                     <div className="md:hidden flex items-center space-x-2">
-                        <ThemeToggle />
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="text-gray-700 p-2 rounded-md hover:bg-gray-100"
+                            className="text-muted p-2 rounded-lg hover:bg-white/5 transition-colors"
                         >
                             {isMobileMenuOpen ? (
                                 <XMarkIcon className="h-6 w-6" />
@@ -187,20 +162,20 @@ const Navbar: React.FC = () => {
 
                 {/* Mobile Menu */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden border-t border-gray-100 py-4 bg-white">
-                        <div className="flex flex-col space-y-2 px-2">
+                    <div className="md:hidden border-t border-white/5 py-4">
+                        <div className="flex flex-col space-y-1 px-2">
                             {!user ? (
                                 <>
                                     <Link
                                         to="/login"
-                                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                                        className="block px-3 py-3 rounded-xl text-sm font-medium text-muted hover:text-white hover:bg-white/5 transition-colors"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         Sign In
                                     </Link>
                                     <Link
                                         to="/register"
-                                        className="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
+                                        className="block px-3 py-3 rounded-xl text-sm font-medium btn-teal text-center"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         Get Started
@@ -211,7 +186,7 @@ const Navbar: React.FC = () => {
                                     {['founder', 'admin'].includes(user.role) && (
                                         <Link
                                             to="/incubator"
-                                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                                            className="block px-3 py-3 rounded-xl text-sm font-medium text-muted hover:text-white hover:bg-white/5 transition-colors"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             Incubator
@@ -221,7 +196,7 @@ const Navbar: React.FC = () => {
                                     {['founder', 'talent', 'admin'].includes(user.role) && (
                                         <Link
                                             to="/collab"
-                                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                                            className="block px-3 py-3 rounded-xl text-sm font-medium text-muted hover:text-white hover:bg-white/5 transition-colors"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             Collab
@@ -231,7 +206,7 @@ const Navbar: React.FC = () => {
                                     {['student', 'teen', 'admin', 'founder', 'parent', 'company'].includes(user.role) && (
                                         <Link
                                             to="/skillswap"
-                                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                                            className="block px-3 py-3 rounded-xl text-sm font-medium text-muted hover:text-white hover:bg-white/5 transition-colors"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             SkillSwap
@@ -240,7 +215,7 @@ const Navbar: React.FC = () => {
 
                                     <Link
                                         to="/dashboard"
-                                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                                        className="block px-3 py-3 rounded-xl text-sm font-medium text-muted hover:text-white hover:bg-white/5 transition-colors"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         Dashboard
@@ -248,7 +223,7 @@ const Navbar: React.FC = () => {
 
                                     <button
                                         onClick={handleLogout}
-                                        className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
+                                        className="block w-full text-left px-3 py-3 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 border-t border-white/5 mt-2 pt-4 transition-colors"
                                     >
                                         Sign Out
                                     </button>

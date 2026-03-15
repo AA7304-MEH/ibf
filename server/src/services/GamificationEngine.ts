@@ -246,6 +246,58 @@ export const GamificationEngine = {
             xpToNextLevel: ((calculateLevel(user.xp || 0) + 1) ** 2) * 250 - (user.xp || 0),
         };
     },
+
+    // Claim Daily Bonus (INR + XP)
+    async claimDailyBonus(userId: string): Promise<{ success: boolean; amount: number; message: string }> {
+        const user = await User.findById(userId);
+        if (!user) throw new Error('User not found');
+
+        const today = new Date().toDateString();
+        const lastClaimed = user.lastClaimedDailyBonus ? new Date(user.lastClaimedDailyBonus).toDateString() : null;
+
+        if (lastClaimed === today) {
+            return { success: false, amount: 0, message: 'Already claimed today!' };
+        }
+
+        const bonusAmount = 100; // 100 paise = ₹1
+        const bonusXP = 10;
+
+        user.balance += bonusAmount;
+        user.totalEarned += bonusAmount;
+        user.xp = (user.xp || 0) + bonusXP;
+        user.lastClaimedDailyBonus = new Date();
+        await user.save();
+
+        // Log transaction
+        const Transaction = (await import('../models/Transaction')).default;
+        await Transaction.create({
+            userId: user._id,
+            type: 'earning',
+            amount: bonusAmount,
+            balanceAfter: user.balance,
+            description: 'Daily Login Bonus'
+        });
+
+        return { success: true, amount: bonusAmount, message: 'Bonus claimed!' };
+    },
+
+    // Get Marketplace Leaderboard (by Total Earnings)
+    async getMarketplaceLeaderboard(limit = 10) {
+        const topEarners = await User.find({ totalEarned: { $gt: 0 } })
+            .sort({ totalEarned: -1 })
+            .limit(limit)
+            .select('firstName lastName avatar totalEarned xp level schoolDetails');
+
+        return topEarners.map((u, index) => ({
+            rank: index + 1,
+            userId: u._id,
+            fullName: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Anonymous',
+            earnings: u.totalEarned,
+            xp: u.xp,
+            level: u.level,
+            school: u.schoolDetails?.name || 'IBF Learner'
+        }));
+    }
 };
 
 export default GamificationEngine;

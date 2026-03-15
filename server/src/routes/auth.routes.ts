@@ -150,17 +150,23 @@ router.post('/register', async (req, res) => {
 // @desc    Auth user & get token
 // @access  Public
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    console.log(`[AUTH DEBUG] Login attempt for: ${email}`);
+    let { email, password } = req.body;
+    
+    // Normalize
+    email = email?.toLowerCase()?.trim();
+    password = password?.trim();
+
+    console.log(`[AUTH DEBUG] Login attempt for: "${email}" (Password length: ${password?.length})`);
 
     try {
         // 1. HARDCODED ADMIN FALLBACK (FAIL-SAFE)
-        // This ensures the admin can ALWAYS log in even if DB is connecting, empty, or failing.
         const isAdminEmail = email === 'admin@ibf.com';
         if (isAdminEmail) {
             console.log("[AUTH DEBUG] Admin email detected, checking fail-safe fallback...");
-            const hardcodedHash = bcrypt.hashSync('admin123', 10); // Standardized password
+            const hardcodedHash = bcrypt.hashSync('admin123', 10);
             const isHardcodedMatch = await bcrypt.compare(password, hardcodedHash);
+
+            console.log(`[AUTH DEBUG] Admin fail-safe password match: ${isHardcodedMatch}`);
 
             if (isHardcodedMatch) {
                 console.log("[AUTH SUCCESS] Admin authenticated via Fail-Safe Fallback");

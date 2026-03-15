@@ -73,7 +73,13 @@ const connectDB = async () => {
         }
     }
 
-    dbPromise = mongoose.connect(uri).then(m => {
+    const connectionOptions = {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        bufferCommands: false // Disable buffering so it fails immediately if not connected
+    };
+
+    dbPromise = mongoose.connect(uri, connectionOptions).then(m => {
         logger.info('Connected to MongoDB');
         return m;
     }).catch(err => {
@@ -154,6 +160,8 @@ import wellbeingRoutes from './routes/wellbeing.routes';
 import gamificationRoutes from './routes/gamification.routes';
 import parentRoutes from './routes/parent.routes';
 import adminRoutes from './routes/admin.routes';
+import marketplaceRoutes from './routes/marketplace.routes';
+import walletRoutes from './routes/wallet.routes';
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -173,6 +181,10 @@ app.use('/api/collab', collabRoutes);
 app.use('/api/skillswap', skillswapRoutes);
 app.use('/api/parent', parentRoutes);
 app.use('/api/admin', adminRoutes);
+
+// Marketplace / Micro-Tasks
+app.use('/api/marketplace', marketplaceRoutes);
+app.use('/api/wallet', walletRoutes);
 
 // Shared Multi-Module Services
 app.use('/api/wellbeing', wellbeingRoutes);

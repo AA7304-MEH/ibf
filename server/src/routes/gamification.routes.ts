@@ -6,12 +6,14 @@ const router = express.Router();
 
 // Public routes
 router.get('/leaderboard', gamificationController.getLeaderboard);
+router.get('/leaderboard/market', gamificationController.getMarketLeaderboard);
 router.get('/badges', gamificationController.getAllBadges);
 
 // Protected routes
 router.get('/stats', protect, gamificationController.getUserStats);
 router.get('/my-badges', protect, gamificationController.getUserBadges);
 router.post('/check-in', protect, gamificationController.dailyCheckIn);
+router.post('/daily-bonus', protect, gamificationController.claimDailyBonus);
 
 // Admin routes
 router.post('/award-xp', protect, gamificationController.awardXP);

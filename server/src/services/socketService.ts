@@ -104,8 +104,20 @@ class SocketService {
         this.io?.to(`user_${userId}`).emit(event, data);
     }
 
+    notifyUser(userId: string, event: string, data: any) {
+        this.emitToUser(userId, event, data);
+    }
+
     emitToModule(moduleName: string, event: string, data: any) {
         this.io?.to(`module_${moduleName}`).emit(event, data);
+    }
+
+    notifyModule(moduleName: string, event: string, data: any) {
+        this.emitToModule(moduleName, event, data);
+    }
+
+    notifyAdmins(event: string, data: any) {
+        this.io?.to('admin_room').emit(event, data);
     }
 
     getIO() {

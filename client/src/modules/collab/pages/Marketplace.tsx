@@ -21,6 +21,7 @@ import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
 import api from '../../../services/api';
 import Card from '../../../components/ui/Card';
 import { useAuth } from '../../../context/AuthContext';
+import TaskFeed from '../../../pages/marketplace/TaskFeed';
 
 interface Project {
     _id: string;
@@ -404,6 +405,11 @@ const Marketplace: React.FC = () => {
                         );
                     })
                 )}
+            </div>
+
+            {/* Micro-Task Marketplace Feed */}
+            <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+                <TaskFeed module="collab" />
             </div>
         </div>
     );
