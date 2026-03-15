@@ -12,7 +12,7 @@ const isVercel = typeof window !== 'undefined' && window.location.hostname.inclu
 const isProd = import.meta.env.PROD || isVercel;
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || (isProd ? '/api' : 'http://localhost:5001/api'),
+    baseURL: isProd ? '/api' : (import.meta.env.VITE_API_URL || 'http://localhost:5001/api'),
     headers: {
         'Content-Type': 'application/json',
     },

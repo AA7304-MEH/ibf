@@ -9,7 +9,7 @@ import {
     Zap,
     Filter,
 } from 'lucide-react';
-import api from '../api/axios';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';

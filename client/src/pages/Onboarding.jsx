@@ -13,7 +13,7 @@ import {
     Cpu,
     Target
 } from 'lucide-react';
-import api from '../api/axios';
+import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';

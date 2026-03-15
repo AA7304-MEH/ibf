@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/axios';
+import api from '../services/api';
 import { motion } from 'framer-motion';
 import { AlertCircle, Bell, Settings, LayoutDashboard } from 'lucide-react';
 

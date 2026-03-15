@@ -13,7 +13,7 @@ import {
     Cpu,
     Sparkles
 } from 'lucide-react';
-import api from '../api/axios';
+import api from '../services/api';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';

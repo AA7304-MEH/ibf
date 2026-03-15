@@ -13,7 +13,7 @@ import {
     ArrowUpRight,
     Sparkles
 } from 'lucide-react';
-import api from '../../api/axios';
+import api from '../../services/api';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';

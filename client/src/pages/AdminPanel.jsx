@@ -15,7 +15,7 @@ import {
     Trash2,
     Settings
 } from 'lucide-react';
-import api from '../api/axios';
+import api from '../services/api';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
