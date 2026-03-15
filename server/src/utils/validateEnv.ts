@@ -13,7 +13,9 @@ export const validateEnv = () => {
 
     if (missing.length > 0) {
         logger.error(`CRITICAL: Missing required environment variables: ${missing.join(', ')}`);
-        process.exit(1);
+        if (!process.env.VERCEL) {
+            process.exit(1);
+        }
     }
 
     const missingOptional = APP_ENV_VARS.filter(key => !process.env[key]);
