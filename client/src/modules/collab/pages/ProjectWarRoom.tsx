@@ -19,9 +19,11 @@ const ProjectWarRoom: React.FC = () => {
     ]);
 
     useEffect(() => {
+        const isVercel = window.location.hostname.includes('vercel.app');
+        const isProd = import.meta.env.PROD || isVercel;
         const socketUrl = import.meta.env.VITE_API_URL
             ? import.meta.env.VITE_API_URL.replace('/api', '')
-            : (import.meta.env.PROD ? '' : 'http://localhost:5001');
+            : (isProd ? '' : 'http://localhost:5001');
 
         const s = io(socketUrl, {
             path: '/socket.io'

@@ -4,7 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
 // Using the same URL as the API base URL but parsed
-const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5001';
+const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+const isProd = import.meta.env.PROD || isVercel;
+const SOCKET_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || (isProd ? '' : 'http://localhost:5001');
 
 export const GlobalSocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user } = useAuth();

@@ -8,8 +8,11 @@ interface ExtendedAxiosInstance extends AxiosInstance {
     createPaymentIntent: (amount: number, currency?: string) => Promise<any>;
 }
 
+const isVercel = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+const isProd = import.meta.env.PROD || isVercel;
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5001/api'),
+    baseURL: import.meta.env.VITE_API_URL || (isProd ? '/api' : 'http://localhost:5001/api'),
     headers: {
         'Content-Type': 'application/json',
     },

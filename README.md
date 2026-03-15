@@ -72,7 +72,7 @@ Follow these steps to set up the project locally.
     # In the server directory
     npm run dev
     ```
-    The server will start on `http://localhost:5000`.
+    The server will start on `http://localhost:5001`.
 
 2.  **Start the Frontend Development Server**
     ```bash
