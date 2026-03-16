@@ -50,8 +50,11 @@ const connectDB = async () => {
     // Check if we require a local memory server. NEVER do this on VERCEL.
     const isLocal = (!process.env.MONGODB_URI || 
                      process.env.MONGODB_URI.includes('username:password') || 
-                     process.env.MONGODB_URI === 'mongodb://127.0.0.1:27017/skillbridge') 
+                     process.env.MONGODB_URI === 'mongodb://127.0.0.1:27017/skillbridge' ||
+                     process.env.MONGODB_URI.includes('@mongodb:27017')) 
                     && !process.env.VERCEL;
+                    
+    const isDockerUriOnVercel = process.env.VERCEL && process.env.MONGODB_URI?.includes('@mongodb:27017');
                     
     let uri = process.env.MONGODB_URI as string;
 
@@ -71,6 +74,12 @@ const connectDB = async () => {
             logger.error('Failed to start MongoDB Memory Server, falling back to local port 27017:', err);
             uri = 'mongodb://127.0.0.1:27017/skillbridge';
         }
+    }
+
+    if (isDockerUriOnVercel) {
+        logger.warn('Detected Docker-style MONGODB_URI on Vercel. This will not work. Falling back to MOCK MODE.');
+        dbPromise = Promise.resolve(mongoose);
+        return dbPromise;
     }
 
     const connectionOptions = {
